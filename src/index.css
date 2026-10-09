@@ -752,6 +752,8 @@ img, picture, video, canvas, svg {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  position: relative;
+  z-index: 10;
 }
 
 @media (min-width: 768px) {
