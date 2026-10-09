@@ -69,7 +69,15 @@ export default function Contact() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.detail || 'Failed to submit enquiry.');
+        let errorMsg = 'Failed to submit enquiry.';
+        if (data && data.detail) {
+          if (Array.isArray(data.detail)) {
+            errorMsg = data.detail.map(err => err.msg || 'Invalid field.').join(' ');
+          } else if (typeof data.detail === 'string') {
+            errorMsg = data.detail;
+          }
+        }
+        throw new Error(errorMsg);
       }
 
       setStatus('success');
@@ -86,6 +94,8 @@ export default function Contact() {
       setStatus('error');
       if (err instanceof TypeError) {
         setErrorMessage('Failed to connect to the server. Please check your connection.');
+      } else if (err instanceof SyntaxError) {
+        setErrorMessage('Received an invalid response from the server. Please try again later.');
       } else {
         setErrorMessage(err.message || 'An unexpected error occurred.');
       }
@@ -135,7 +145,7 @@ export default function Contact() {
           </div>
         )}
 
-        <form className="contact-form" onSubmit={handleSubmit} noValidate>
+        <form className="contact-form" onSubmit={handleSubmit}>
           {/* Honeypot field - hidden from users */}
           <div className="sr-only" aria-hidden="true">
             <label htmlFor="honeypot">Do not fill this out if you are human</label>
