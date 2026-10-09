@@ -1167,3 +1167,109 @@ img, picture, video, canvas, svg {
 }
 
 /* Remove print styles completely */
+
+/* ==========================================================================
+   CONTACT PAGE
+   ========================================================================== */
+
+.contact-subheadline {
+  font-size: clamp(2rem, 6vw, 4rem);
+  margin-top: var(--space-2);
+  margin-bottom: 0;
+  line-height: 1;
+  color: var(--color-text-primary);
+}
+
+.contact-intro {
+  margin-top: var(--space-8);
+  margin-bottom: var(--space-8);
+  max-width: 52ch;
+  color: var(--color-text-secondary);
+}
+
+/* Contact rows — editorial list with label / value / action */
+.contact-row {
+  padding: var(--space-8) 0;
+}
+
+.contact-row-inner {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .contact-row-inner {
+    grid-template-columns: 240px 1fr;
+    align-items: center;
+    gap: var(--space-8);
+  }
+}
+
+.contact-label {
+  font-size: var(--text-size-small);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-secondary);
+}
+
+.contact-row-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+@media (min-width: 768px) {
+  .contact-row-body {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.contact-value {
+  font-size: var(--text-size-body);
+  color: var(--color-text-primary);
+  /* Prevent long email addresses from overflowing on small screens */
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
+
+@media (min-width: 480px) {
+  .contact-value {
+    word-break: normal;
+  }
+}
+
+.contact-action {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  font-size: var(--text-size-small);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-primary);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 1px;
+  transition: border-color var(--transition-fast);
+  /* comfortable touch target on mobile */
+  min-height: 44px;
+  align-self: flex-start;
+}
+
+@media (min-width: 768px) {
+  .contact-action {
+    align-self: auto;
+  }
+}
+
+.contact-action:hover {
+  border-bottom-color: var(--color-text-primary);
+}
+
+.contact-action:focus-visible {
+  outline: 2px solid var(--color-text-primary);
+  outline-offset: 4px;
+  border-radius: 2px;
+}

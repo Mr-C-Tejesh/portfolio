@@ -137,9 +137,9 @@ export default function NavigationPill({ isVisible, theme = 'dark' }) {
             </Link>
           </li>
           <li>
-            <button disabled className="future-link" title="COMING IN A LATER PHASE" aria-disabled="true">
-              Contact <span className="future-tag">soon</span>
-            </button>
+            <Link to="/contact" onClick={closeMenu} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '12px 16px', background: 'transparent', border: 'none', borderRadius: '10px', fontFamily: '"Inter", sans-serif', fontSize: '1.1rem', fontWeight: 500, color: '#1A1A1A', textDecoration: 'none', textAlign: 'left', transition: 'background-color 0.2s ease, transform 0.1s ease' }}>
+              Contact
+            </Link>
           </li>
         </ul>
       </nav>

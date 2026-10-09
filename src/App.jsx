@@ -7,6 +7,7 @@ import ProjectDetail from './pages/ProjectDetail';
 import Resume from './pages/Resume';
 import BioData from './pages/BioData';
 import AskTejesh from './pages/AskTejesh';
+import Contact from './pages/Contact';
 
 function AppContent() {
   const location = useLocation();
@@ -46,6 +47,7 @@ function AppContent() {
         <Route path="/resume" element={<Resume />} />
         <Route path="/bio-data" element={<BioData />} />
         <Route path="/ask-tejesh" element={<AskTejesh />} />
+        <Route path="/contact" element={<Contact />} />
         {/* Fallback route for unknown paths */}
         <Route path="*" element={<ProjectDetail />} />
       </Routes>
