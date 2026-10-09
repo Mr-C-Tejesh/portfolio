@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import Hero from '../components/Hero';
 import IntroSection from '../components/IntroSection';
 import PortraitTransition from '../components/PortraitTransition';
@@ -10,6 +10,22 @@ export default function Home({ onHeroVisible, onThemeChange }) {
   const heroRef = useRef(null);
   const introPortraitRef = useRef(null);
   const featuredProjects = getFeaturedProjects();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.scrollTo === 'about') {
+      // Clear the state so it doesn't re-scroll if user refreshes
+      window.history.replaceState({}, document.title);
+      // Wait for paint
+      setTimeout(() => {
+        const el = document.getElementById('about');
+        if (el) {
+          const y = el.getBoundingClientRect().top + window.scrollY - 80;
+          window.scrollTo({ top: y, behavior: 'smooth' });
+        }
+      }, 100);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     const hero = heroRef.current;

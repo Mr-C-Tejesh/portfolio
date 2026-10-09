@@ -678,6 +678,8 @@ img, picture, video, canvas, svg {
 
 .project-card-header, .project-card-content, .project-card-action {
   min-width: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .project-card-header {
@@ -1018,6 +1020,8 @@ img, picture, video, canvas, svg {
   align-items: center;
   padding: 12px 24px;
   background-color: var(--color-text-primary);
+  position: relative;
+  z-index: 10;
   border: none;
   border-radius: var(--radius-full);
   font-size: var(--text-size-small);

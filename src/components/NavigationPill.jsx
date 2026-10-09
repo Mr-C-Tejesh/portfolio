@@ -1,11 +1,26 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import DotMatrixText from './DotMatrixText';
 
 export default function NavigationPill({ isVisible, theme = 'dark' }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleAboutClick = (e) => {
+    e.preventDefault();
+    closeMenu();
+    if (location.pathname === '/') {
+      const el = document.getElementById('about');
+      if (el) {
+        const y = el.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
+    } else {
+      navigate('/', { state: { scrollTo: 'about' } });
+    }
+  };
   
   // auto-close menu when hiding pill
   useEffect(() => {
@@ -26,7 +41,10 @@ export default function NavigationPill({ isVisible, theme = 'dark' }) {
     };
     
     const handleClickOutside = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
+      if (!menuOpen) return;
+      const isInsidePill = e.target.closest('.navigation-pill');
+      const isInsideMenu = e.target.closest('.navigation-menu');
+      if (!isInsidePill && !isInsideMenu) {
         setMenuOpen(false);
       }
     };
@@ -83,12 +101,12 @@ export default function NavigationPill({ isVisible, theme = 'dark' }) {
           </li>
           <li>
             <Link to="/work" onClick={closeMenu} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '12px 16px', background: 'transparent', border: 'none', borderRadius: '10px', fontFamily: '"Inter", sans-serif', fontSize: '1.1rem', fontWeight: 500, color: '#1A1A1A', textDecoration: 'none', textAlign: 'left', transition: 'background-color 0.2s ease, transform 0.1s ease' }}>
-              Selected Work
+              All Work
             </Link>
           </li>
           <li>
             {/* Using an anchor for About since it's an in-page section on Home. If not on Home, we need to go to /#about */}
-            <a href="/#about" onClick={closeMenu}>About</a>
+            <a href="/#about" onClick={handleAboutClick}>About</a>
           </li>
           <li>
             <Link to="/resume" onClick={closeMenu} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '12px 16px', background: 'transparent', border: 'none', borderRadius: '10px', fontFamily: '"Inter", sans-serif', fontSize: '1.1rem', fontWeight: 500, color: '#1A1A1A', textDecoration: 'none', textAlign: 'left', transition: 'background-color 0.2s ease, transform 0.1s ease' }}>
