@@ -367,9 +367,14 @@ img, picture, video, canvas, svg {
 }
 
 .navigation-container.is-visible {
-  pointer-events: auto;
+  pointer-events: none;
   opacity: 1;
   transition: opacity 0.2s ease 0s;
+}
+
+.navigation-container.is-visible .navigation-pill,
+.navigation-container.is-visible .navigation-menu {
+  pointer-events: auto;
 }
 
 .navigation-pill {
