@@ -1,40 +1,48 @@
-import React, { useRef, useState, useEffect } from 'react'
-import Hero from './components/Hero'
-import IntroSection from './components/IntroSection'
-import PortraitTransition from './components/PortraitTransition'
-import NavigationPill from './components/NavigationPill'
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import NavigationPill from './components/NavigationPill';
+import Home from './pages/Home';
+import Work from './pages/Work';
+import ProjectDetail from './pages/ProjectDetail';
 
-function App() {
-  const introPortraitRef = useRef(null)
-  const heroRef = useRef(null)
-  const [isNavVisible, setIsNavVisible] = useState(false)
+function AppContent() {
+  const location = useLocation();
+  const [isNavVisible, setIsNavVisible] = useState(false);
 
+  // When not on the home page, the navigation is always visible
   useEffect(() => {
-    const hero = heroRef.current;
-    if (!hero) return;
+    if (location.pathname !== '/') {
+      setIsNavVisible(true);
+    }
+  }, [location]);
 
-    const observer = new IntersectionObserver(([entry]) => {
-      setIsNavVisible(entry.intersectionRatio <= 0.10);
-    }, {
-      root: null,
-      threshold: [0.10],
-      rootMargin: '0px'
-    });
-
-    observer.observe(hero);
-    return () => observer.disconnect();
-  }, []);
+  const handleHeroVisible = (isIntersecting) => {
+    // Only manage visibility via scroll on the homepage
+    if (location.pathname === '/') {
+      setIsNavVisible(!isIntersecting);
+    }
+  };
 
   return (
-    <main id="top">
+    <>
       <NavigationPill isVisible={isNavVisible} />
-      <Hero ref={heroRef} />
-      <div id="about">
-        <IntroSection ref={introPortraitRef} />
-      </div>
-      <PortraitTransition targetRef={introPortraitRef} />
-    </main>
-  )
+      <Routes>
+        <Route path="/" element={<Home onHeroVisible={handleHeroVisible} />} />
+        <Route path="/work" element={<Work />} />
+        <Route path="/work/:slug" element={<ProjectDetail />} />
+        {/* Fallback route for unknown paths */}
+        <Route path="*" element={<ProjectDetail />} />
+      </Routes>
+    </>
+  );
 }
 
-export default App
+function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
+  );
+}
+
+export default App;

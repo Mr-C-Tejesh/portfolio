@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import DotMatrixText from './DotMatrixText';
 
 export default function NavigationPill({ isVisible }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
+  const location = useLocation();
   
   // auto-close menu when hiding pill
   useEffect(() => {
@@ -11,6 +13,11 @@ export default function NavigationPill({ isVisible }) {
       setMenuOpen(false);
     }
   }, [isVisible]);
+
+  // auto-close menu on route change
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
 
   // Handle outside click & Escape
   useEffect(() => {
@@ -71,13 +78,18 @@ export default function NavigationPill({ isVisible }) {
         aria-hidden={!menuOpen}
       >
         <ul>
-          <li><a href="#top" onClick={closeMenu}>Home</a></li>
           <li>
-            <button disabled className="future-link" title="COMING IN A LATER PHASE" aria-disabled="true">
-              Selected Work <span className="future-tag">soon</span>
-            </button>
+            <Link to="/" onClick={closeMenu}>Home</Link>
           </li>
-          <li><a href="#about" onClick={closeMenu}>About</a></li>
+          <li>
+            <Link to="/work" onClick={closeMenu} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '12px 16px', background: 'transparent', border: 'none', borderRadius: '10px', fontFamily: '"Inter", sans-serif', fontSize: '1.1rem', fontWeight: 500, color: '#1A1A1A', textDecoration: 'none', textAlign: 'left', transition: 'background-color 0.2s ease, transform 0.1s ease' }}>
+              Selected Work
+            </Link>
+          </li>
+          <li>
+            {/* Using an anchor for About since it's an in-page section on Home. If not on Home, we need to go to /#about */}
+            <a href="/#about" onClick={closeMenu}>About</a>
+          </li>
           <li>
             <button disabled className="future-link" title="COMING IN A LATER PHASE" aria-disabled="true">
               Resume <span className="future-tag">soon</span>
