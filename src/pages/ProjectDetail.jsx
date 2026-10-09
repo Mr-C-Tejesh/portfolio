@@ -49,14 +49,14 @@ export default function ProjectDetail() {
             
             {(project.repositoryUrl || project.demoUrl) && (
               <div className="project-links">
-                {project.repositoryUrl && (
-                  <a href={project.repositoryUrl} target="_blank" rel="noopener noreferrer" className="btn-external font-mono">
-                    GitHub Repository <span aria-hidden="true">&nearr;</span>
-                  </a>
-                )}
                 {project.demoUrl && (
                   <a href={project.demoUrl} target="_blank" rel="noopener noreferrer" className="btn-external font-mono">
                     Live Demo <span aria-hidden="true">&nearr;</span>
+                  </a>
+                )}
+                {project.repositoryUrl && (
+                  <a href={project.repositoryUrl} target="_blank" rel="noopener noreferrer" className="btn-external font-mono">
+                    GitHub <span aria-hidden="true">&nearr;</span>
                   </a>
                 )}
               </div>
@@ -127,6 +127,22 @@ export default function ProjectDetail() {
                 <h2 className="section-heading">Learnings</h2>
                 <div className="section-divider-thin"></div>
                 <p>{project.learnings}</p>
+              </section>
+            )}
+
+            {project.additionalLinks && project.additionalLinks.length > 0 && (
+              <section className="project-section">
+                <h2 className="section-heading meta-label">Additional Links</h2>
+                <div className="section-divider-thin"></div>
+                <ul className="additional-links-list">
+                  {project.additionalLinks.map((link, i) => (
+                    <li key={i}>
+                      <a href={link.url} target="_blank" rel="noopener noreferrer" className="btn-text-link font-mono">
+                        {link.label} <span aria-hidden="true">&nearr;</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
               </section>
             )}
 

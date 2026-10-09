@@ -14,8 +14,12 @@ export const projects = [
     challenges: null,
     learnings: null,
     limitations: null,
-    repositoryUrl: null,
-    demoUrl: null,
+    repositoryUrl: 'https://github.com/Mr-C-Tejesh/campus-maintenance-agent',
+    demoUrl: 'https://campus-maintenance-agent.vercel.app/',
+    additionalLinks: [
+      { label: 'Backend health', url: 'https://campus-maintenance-agent.onrender.com/health' },
+      { label: 'API documentation', url: 'https://campus-maintenance-agent.onrender.com/docs' }
+    ],
     featured: true,
   },
   {
@@ -34,7 +38,10 @@ export const projects = [
     learnings: null,
     limitations: null,
     repositoryUrl: 'https://github.com/Mr-C-Tejesh/talentstream-ai',
-    demoUrl: null,
+    demoUrl: 'https://talentstream-ai.streamlit.app/',
+    additionalLinks: [
+      { label: 'Backend health', url: 'https://talentstream-api-production.up.railway.app/health' }
+    ],
     featured: true,
   },
   {
@@ -52,8 +59,11 @@ export const projects = [
     challenges: null,
     learnings: null,
     limitations: null,
-    repositoryUrl: null,
-    demoUrl: null,
+    repositoryUrl: 'https://github.com/Mr-C-Tejesh/pharmacy-crm',
+    demoUrl: 'https://pharmacy-crm-three.vercel.app/',
+    additionalLinks: [
+      { label: 'Backend', url: 'https://pharmacy-crm-api.onrender.com/' }
+    ],
     featured: true,
   },
   {
@@ -71,8 +81,9 @@ export const projects = [
     challenges: null,
     learnings: null,
     limitations: null,
-    repositoryUrl: null,
-    demoUrl: null,
+    repositoryUrl: 'https://github.com/Mr-C-Tejesh/AI-Resume-Analyzer',
+    demoUrl: 'https://ai-resume-analyzer-sp7bqre3htdhzjq6u66psd.streamlit.app/',
+    additionalLinks: [],
     featured: false,
   },
   {
@@ -90,8 +101,9 @@ export const projects = [
     challenges: null,
     learnings: null,
     limitations: 'This is an educational project implementation and is NOT a clinically validated diagnostic tool. It cannot be used to reliably diagnose patients.',
-    repositoryUrl: null,
-    demoUrl: null,
+    repositoryUrl: 'https://github.com/Mr-C-Tejesh/skin-lesion-cnn-classifier',
+    demoUrl: 'https://huggingface.co/spaces/tejesh-c/skin-lesion-classifier-v2',
+    additionalLinks: [],
     featured: false,
   }
 ];
