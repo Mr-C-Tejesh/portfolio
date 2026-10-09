@@ -6,7 +6,7 @@ import PortraitTransition from '../components/PortraitTransition';
 import ProjectCard from '../components/ProjectCard';
 import { getFeaturedProjects } from '../data/projects';
 
-export default function Home({ onHeroVisible }) {
+export default function Home({ onHeroVisible, onThemeChange }) {
   const heroRef = useRef(null);
   const introPortraitRef = useRef(null);
   const featuredProjects = getFeaturedProjects();
