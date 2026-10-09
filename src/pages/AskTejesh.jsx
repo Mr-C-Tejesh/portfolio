@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
 
 // Resolve the backend URL once at module load time.
 // In production builds VITE_API_BASE_URL must be set at build time by the hosting provider.
@@ -27,7 +28,7 @@ export default function AskTejesh() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  
+
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -49,7 +50,7 @@ export default function AskTejesh() {
 
     // Check if the user is resending the same failed message vs a new message
     const isRetry = error && messages.length > 0 && messages[messages.length - 1].role === 'user' && messages[messages.length - 1].content === trimmed;
-    
+
     let newMessages;
     if (isRetry) {
         newMessages = [...messages];
@@ -58,7 +59,7 @@ export default function AskTejesh() {
         newMessages = [...messages, userMsg];
         setMessages(newMessages);
     }
-    
+
     setInput("");
     setError(null);
     setIsLoading(true);
@@ -119,7 +120,7 @@ export default function AskTejesh() {
   return (
     <main id="top" className="page-resume theme-light" style={{ backgroundColor: 'var(--color-canvas-primary)', color: 'var(--color-text-primary)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <div className="container resume-container" style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingBottom: 'var(--space-8)' }}>
-        
+
         <header className="resume-header" style={{ marginBottom: 'var(--space-4)' }}>
           <h1 className="font-display resume-title">ASK TEJESH</h1>
           <p className="resume-text" style={{ fontSize: '1.25rem', marginTop: 'var(--space-2)' }}>
@@ -129,11 +130,11 @@ export default function AskTejesh() {
             AI-powered answers based on Tejesh's public profile and project information. Do not submit sensitive information.
           </p>
         </header>
-        
+
         <div className="section-divider"></div>
 
         <div className="chat-container" style={{ flex: 1, display: 'flex', flexDirection: 'column', marginTop: 'var(--space-6)', maxWidth: '800px', width: '100%' }}>
-          
+
           <div className="chat-history" style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', paddingBottom: 'var(--space-4)' }}>
             {messages.map((msg, idx) => (
               <div key={idx} style={{
@@ -146,12 +147,22 @@ export default function AskTejesh() {
                 borderBottomLeftRadius: msg.role === 'assistant' ? '4px' : '16px',
                 maxWidth: '85%',
                 lineHeight: '1.5',
-                whiteSpace: 'pre-wrap'
-              }}>
-                {msg.content}
+                whiteSpace: msg.role === 'user' ? 'pre-wrap' : 'normal'
+              }} className={msg.role === 'assistant' ? 'assistant-markdown' : ''}>
+                {msg.role === 'assistant' ? (
+                  <ReactMarkdown
+                    components={{
+                      a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" />
+                    }}
+                  >
+                    {msg.content}
+                  </ReactMarkdown>
+                ) : (
+                  msg.content
+                )}
               </div>
             ))}
-            
+
             {isLoading && (
               <div style={{ alignSelf: 'flex-start', backgroundColor: 'var(--color-border-primary)', padding: '16px 20px', borderRadius: '16px', borderBottomLeftRadius: '4px' }}>
                 <span style={{ display: 'inline-flex', gap: '4px' }}>
@@ -161,21 +172,21 @@ export default function AskTejesh() {
                 </span>
               </div>
             )}
-            
+
             {error && (
               <div style={{ alignSelf: 'center', backgroundColor: '#FFF0F0', color: '#D32F2F', border: '1px solid #FFCDD2', padding: '12px 16px', borderRadius: '8px', fontSize: '0.9rem', marginTop: 'var(--space-2)' }}>
                 {error} <button onClick={() => handleSend(messages[messages.length-1].content)} style={{ background: 'none', border: 'none', color: 'inherit', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'underline' }}>Retry</button>
               </div>
             )}
-            
+
             <div ref={messagesEndRef} />
           </div>
 
           {messages.length === 1 && (
             <div className="suggested-questions" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: 'var(--space-4)', marginTop: 'var(--space-4)' }}>
               {SUGGESTED_QUESTIONS.map((q, i) => (
-                <button 
-                  key={i} 
+                <button
+                  key={i}
                   onClick={() => handleSend(q)}
                   disabled={isLoading}
                   style={{
@@ -229,8 +240,8 @@ export default function AskTejesh() {
                   outline: 'none',
                 }}
               />
-              <button 
-                onClick={() => handleSend()} 
+              <button
+                onClick={() => handleSend()}
                 disabled={!input.trim() || isLoading}
                 style={{
                   backgroundColor: input.trim() && !isLoading ? 'var(--color-text-primary)' : 'var(--color-border-primary)',
@@ -246,12 +257,12 @@ export default function AskTejesh() {
                 Send
               </button>
             </div>
-            
+
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px' }}>
               <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>
                 {input.length} / 1500 characters • Shift+Enter for new line
               </span>
-              <button 
+              <button
                 onClick={handleClear}
                 style={{
                   background: 'transparent',
@@ -268,7 +279,7 @@ export default function AskTejesh() {
               </button>
             </div>
           </div>
-          
+
         </div>
 
       </div>
