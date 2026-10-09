@@ -43,7 +43,7 @@ export default function DotMatrixText({ text = "TEJESH C" }) {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const rect = container.getBoundingClientRect();
 
-    const width = rect.width;
+    const width = Math.floor(rect.width);
     const offCanvas = document.createElement('canvas');
     const octx = offCanvas.getContext('2d', { willReadFrequently: true });
 

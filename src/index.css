@@ -240,7 +240,7 @@ img, picture, video, canvas, svg {
 }
 
 .hero-section {
-  min-height: clamp(500px, 62vh, 800px);
+  min-height: 100svh;
   display: flex;
   align-items: center;
   justify-content: flex-start;
