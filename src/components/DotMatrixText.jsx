@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 
-export default function DotMatrixText({ text = "TEJESH C" }) {
+export default function DotMatrixText({ text = "TEJESH C", interactive = true, color = "var(--color-white)" }) {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
   const dotsRef = useRef([]);
@@ -9,8 +9,12 @@ export default function DotMatrixText({ text = "TEJESH C" }) {
   const colorRef = useRef('#FFFFFF');
 
   useEffect(() => {
-    // Resolve the CSS variable for the dot color, defaulting to pure white
-    colorRef.current = getComputedStyle(document.documentElement).getPropertyValue('--color-white').trim() || '#FFFFFF';
+    let resolvedColor = color;
+    if (color.startsWith('var(')) {
+      const varName = color.match(/var\((.*?)\)/)[1];
+      resolvedColor = getComputedStyle(document.documentElement).getPropertyValue(varName).trim() || '#FFFFFF';
+    }
+    colorRef.current = resolvedColor;
 
     let observer;
     document.fonts.ready.then(() => {
@@ -29,7 +33,7 @@ export default function DotMatrixText({ text = "TEJESH C" }) {
       if (observer) observer.disconnect();
       if (reqRef.current) cancelAnimationFrame(reqRef.current);
     };
-  }, [text]);
+  }, [text, color]);
 
   const initCanvas = () => {
     const canvas = canvasRef.current;
@@ -37,13 +41,14 @@ export default function DotMatrixText({ text = "TEJESH C" }) {
     if (!canvas || !container) return;
 
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
-    // Reset any existing transforms before re-initializing
     ctx.setTransform(1, 0, 0, 1, 0, 0);
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const rect = container.getBoundingClientRect();
 
     const width = Math.floor(rect.width);
+    if (width === 0) return;
+
     const offCanvas = document.createElement('canvas');
     const octx = offCanvas.getContext('2d', { willReadFrequently: true });
 
@@ -76,8 +81,8 @@ export default function DotMatrixText({ text = "TEJESH C" }) {
     const imageData = octx.getImageData(0, 0, width, height);
     const data = imageData.data;
 
-    const gap = Math.max(Math.floor(width / 150), 4);
-    const radius = gap * 0.30;
+    const gap = Math.max(Math.floor(width / 150), 3);
+    const radius = gap * 0.35;
 
     const newDots = [];
     for (let y = 0; y < height; y += gap) {
@@ -104,7 +109,6 @@ export default function DotMatrixText({ text = "TEJESH C" }) {
 
   const draw = (ctx, width, height, dpr) => {
     ctx.clearRect(0, 0, width, height);
-    // Use the resolved color token instead of a CSS variable string that Canvas 2D API cannot parse
     ctx.fillStyle = colorRef.current;
 
     const dots = dotsRef.current;
@@ -112,7 +116,7 @@ export default function DotMatrixText({ text = "TEJESH C" }) {
     const hasFinePointer = window.matchMedia('(pointer: fine)').matches;
     let needsUpdate = false;
 
-    if (!reducedMotion && hasFinePointer) {
+    if (interactive && !reducedMotion && hasFinePointer) {
         const mouse = mouseRef.current;
         const spring = 0.08;
         const friction = 0.8;
@@ -142,7 +146,6 @@ export default function DotMatrixText({ text = "TEJESH C" }) {
           dot.x += dot.vx;
           dot.y += dot.vy;
 
-          // Stop animating when all dots have settled into equilibrium (no movement)
           if (Math.abs(dot.x - oldX) > 0.01 || Math.abs(dot.y - oldY) > 0.01) {
               needsUpdate = true;
           }
@@ -168,6 +171,7 @@ export default function DotMatrixText({ text = "TEJESH C" }) {
   };
 
   const handlePointerMove = (e) => {
+    if (!interactive) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
@@ -182,10 +186,10 @@ export default function DotMatrixText({ text = "TEJESH C" }) {
   };
 
   const handlePointerLeave = () => {
+    if (!interactive) return;
     mouseRef.current.x = -1000;
     mouseRef.current.y = -1000;
 
-    // Ensure we trigger the loop to return dots to origin
     if (reqRef.current) cancelAnimationFrame(reqRef.current);
     const canvas = canvasRef.current;
     if (canvas) {
@@ -196,11 +200,11 @@ export default function DotMatrixText({ text = "TEJESH C" }) {
   };
 
   return (
-    <div ref={containerRef} style={{ width: '100%', position: 'relative', overflow: 'hidden' }}>
+    <div ref={containerRef} style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}>
       <canvas
         ref={canvasRef}
-        onPointerMove={handlePointerMove}
-        onPointerLeave={handlePointerLeave}
+        onPointerMove={interactive ? handlePointerMove : undefined}
+        onPointerLeave={interactive ? handlePointerLeave : undefined}
         aria-hidden="true"
         style={{ display: 'block', margin: '0 auto', touchAction: 'none' }}
       />
