@@ -110,7 +110,15 @@ export default function ProjectDetail() {
               <section className="project-section">
                 <h2 className="section-heading">Key Features</h2>
                 <div className="section-divider-thin"></div>
-                <p>{project.keyFeatures}</p>
+                {Array.isArray(project.keyFeatures) ? (
+                  <ul className="project-feature-list" style={{ paddingLeft: '1.5rem', marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {project.keyFeatures.map((feature, i) => (
+                      <li key={i}>{feature}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>{project.keyFeatures}</p>
+                )}
               </section>
             )}
 
