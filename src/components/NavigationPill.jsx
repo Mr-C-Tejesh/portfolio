@@ -5,6 +5,7 @@ import DotMatrixText from './DotMatrixText';
 export default function NavigationPill({ isVisible, theme = 'dark' }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
+  const hamburgerRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -63,16 +64,27 @@ export default function NavigationPill({ isVisible, theme = 'dark' }) {
   const toggleMenu = () => setMenuOpen(prev => !prev);
   const closeMenu = () => setMenuOpen(false);
 
+  // Return focus to the hamburger button when the menu closes and focus was inside it.
+  useEffect(() => {
+    if (!menuOpen) {
+      const menu = document.getElementById('navigation-menu');
+      if (menu && menu.contains(document.activeElement)) {
+        hamburgerRef.current?.focus();
+      }
+    }
+  }, [menuOpen]);
+
   return (
     <div className={`navigation-container nav-treatment-${theme} ${isVisible ? 'is-visible' : ''}`} ref={menuRef}>
       <div className="navigation-pill">
         <div className="pill-left">
           <button
             className="hamburger-btn"
+            ref={hamburgerRef}
             onClick={toggleMenu}
             aria-expanded={menuOpen}
             aria-controls="navigation-menu"
-            aria-label="Open navigation menu"
+            aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
           >
             <div className={`hamburger-lines ${menuOpen ? 'is-open' : ''}`}>
               <span className="hamburger-line"></span>
@@ -94,6 +106,7 @@ export default function NavigationPill({ isVisible, theme = 'dark' }) {
         id="navigation-menu"
         className={`navigation-menu ${menuOpen ? 'is-open' : ''}`}
         aria-hidden={!menuOpen}
+        inert={!menuOpen ? '' : undefined}
       >
         <ul>
           <li>
