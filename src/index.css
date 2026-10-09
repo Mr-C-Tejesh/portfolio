@@ -381,7 +381,7 @@ img, picture, video, canvas, svg {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 8px;
+  padding: 0;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.3s, border-radius 0.4s ease 0.3s;
 }
@@ -393,20 +393,12 @@ img, picture, video, canvas, svg {
 }
 
 .pill-left, .pill-right {
-  width: 60px;
+  width: 56px;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  opacity: 0;
-  transition: opacity 0.2s ease 0.1s;
-}
-
-.navigation-container.is-visible .pill-left,
-.navigation-container.is-visible .pill-right {
-  opacity: 1;
-  transition: opacity 0.3s ease 0.4s;
 }
 
 .pill-center {
@@ -417,12 +409,14 @@ img, picture, video, canvas, svg {
   user-select: none;
   min-width: 0;
   opacity: 0;
-  transition: opacity 0.2s ease 0s;
+  transform: scale(0.95);
+  transition: opacity 0.2s ease 0s, transform 0.2s ease 0s;
 }
 
 .navigation-container.is-visible .pill-center {
   opacity: 1;
-  transition: opacity 0.3s ease 0.5s;
+  transform: scale(1);
+  transition: opacity 0.3s ease 0.4s, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.4s;
 }
 
 .pill-wordmark {
@@ -442,7 +436,13 @@ img, picture, video, canvas, svg {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s;
+  transform: rotate(-90deg);
+  transition: background-color 0.2s, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.3s;
+}
+
+.navigation-container.is-visible .hamburger-btn {
+  transform: rotate(0deg);
+  transition: background-color 0.2s, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.1s;
 }
 
 .hamburger-btn:hover, .hamburger-btn:focus-visible {
@@ -564,6 +564,8 @@ img, picture, video, canvas, svg {
   .navigation-container.is-visible .pill-left,
   .navigation-container.is-visible .pill-right,
   .navigation-container.is-visible .pill-center,
+  .hamburger-btn,
+  .navigation-container.is-visible .hamburger-btn,
   .hamburger-line,
   .navigation-menu,
   .navigation-menu a {
