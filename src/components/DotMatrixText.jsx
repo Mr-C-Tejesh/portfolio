@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 
-export default function DotMatrixText({ text = "TEJESH C." }) {
+export default function DotMatrixText({ text = "TEJESH C" }) {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
   const dotsRef = useRef([]);
@@ -48,12 +48,12 @@ export default function DotMatrixText({ text = "TEJESH C." }) {
     const octx = offCanvas.getContext('2d', { willReadFrequently: true });
 
     let fontSize = 300;
-    octx.font = `900 ${fontSize}px "Inter", sans-serif`;
+    octx.font = `500 ${fontSize}px "Inter", sans-serif`;
     let metrics = octx.measureText(text);
 
     if (metrics.width > width * 0.95) {
       fontSize = Math.floor(fontSize * (width * 0.95) / metrics.width);
-      octx.font = `900 ${fontSize}px "Inter", sans-serif`;
+      octx.font = `500 ${fontSize}px "Inter", sans-serif`;
     }
 
     const height = Math.max(Math.ceil(fontSize * 1.5), 100);
@@ -67,7 +67,7 @@ export default function DotMatrixText({ text = "TEJESH C." }) {
     offCanvas.width = width;
     offCanvas.height = height;
 
-    octx.font = `900 ${fontSize}px "Inter", sans-serif`;
+    octx.font = `500 ${fontSize}px "Inter", sans-serif`;
     octx.textAlign = 'center';
     octx.textBaseline = 'middle';
     octx.fillStyle = 'white';
@@ -77,7 +77,7 @@ export default function DotMatrixText({ text = "TEJESH C." }) {
     const data = imageData.data;
 
     const gap = Math.max(Math.floor(width / 150), 4);
-    const radius = gap * 0.35;
+    const radius = gap * 0.30;
 
     const newDots = [];
     for (let y = 0; y < height; y += gap) {
@@ -129,8 +129,8 @@ export default function DotMatrixText({ text = "TEJESH C." }) {
           if (dist < mouse.radius) {
             const angle = Math.atan2(dy, dx);
             const force = (mouse.radius - dist) / mouse.radius;
-            dot.vx -= Math.cos(angle) * force * 5;
-            dot.vy -= Math.sin(angle) * force * 5;
+            dot.vx -= Math.cos(angle) * force * 10;
+            dot.vy -= Math.sin(angle) * force * 10;
           }
 
           dot.vx += (dot.originX - dot.x) * spring;
