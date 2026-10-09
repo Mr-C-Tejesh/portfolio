@@ -354,7 +354,7 @@ img, picture, video, canvas, svg {
   max-width: 1150px;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.3s ease 0.7s;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -369,18 +369,27 @@ img, picture, video, canvas, svg {
 .navigation-container.is-visible {
   pointer-events: auto;
   opacity: 1;
+  transition: opacity 0.2s ease 0s;
 }
 
 .navigation-pill {
   background-color: #D2D2D2;
-  border-radius: 40px;
+  border-radius: 28px;
   height: 56px;
-  width: 100%;
+  width: 56px;
+  overflow: hidden;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.3s, border-radius 0.4s ease 0.3s;
+}
+
+.navigation-container.is-visible .navigation-pill {
+  width: 100%;
+  border-radius: 40px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.1s, border-radius 0.4s ease 0.1s;
 }
 
 .pill-left, .pill-right {
@@ -389,6 +398,15 @@ img, picture, video, canvas, svg {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.2s ease 0.1s;
+}
+
+.navigation-container.is-visible .pill-left,
+.navigation-container.is-visible .pill-right {
+  opacity: 1;
+  transition: opacity 0.3s ease 0.4s;
 }
 
 .pill-center {
@@ -397,6 +415,14 @@ img, picture, video, canvas, svg {
   justify-content: center;
   align-items: center;
   user-select: none;
+  min-width: 0;
+  opacity: 0;
+  transition: opacity 0.2s ease 0s;
+}
+
+.navigation-container.is-visible .pill-center {
+  opacity: 1;
+  transition: opacity 0.3s ease 0.5s;
 }
 
 .pill-wordmark {
@@ -529,6 +555,15 @@ img, picture, video, canvas, svg {
 
 @media (prefers-reduced-motion: reduce) {
   .navigation-container,
+  .navigation-container.is-visible,
+  .navigation-pill,
+  .navigation-container.is-visible .navigation-pill,
+  .pill-left,
+  .pill-right,
+  .pill-center,
+  .navigation-container.is-visible .pill-left,
+  .navigation-container.is-visible .pill-right,
+  .navigation-container.is-visible .pill-center,
   .hamburger-line,
   .navigation-menu,
   .navigation-menu a {
