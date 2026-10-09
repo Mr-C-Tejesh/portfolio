@@ -1,33 +1,16 @@
 import React, { useEffect, useState, useRef } from 'react';
 import DotMatrixText from './DotMatrixText';
 
-export default function NavigationPill() {
-  const [isVisible, setIsVisible] = useState(false);
+export default function NavigationPill({ isVisible }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
   
+  // auto-close menu when hiding pill
   useEffect(() => {
-    const hero = document.querySelector('.hero-section');
-    if (!hero) return;
-    
-    // Intersection observer triggers when the hero section leaves the viewport
-    const observer = new IntersectionObserver(([entry]) => {
-      // The pill is visible when the hero is completely NOT intersecting, or mostly NOT intersecting.
-      // We trigger when intersection drops to 0.
-      const outOfView = !entry.isIntersecting;
-      setIsVisible(outOfView);
-      if (!outOfView) {
-        setMenuOpen(false); // auto-close menu when hiding pill
-      }
-    }, {
-      root: null,
-      threshold: 0,
-      rootMargin: '0px'
-    });
-    
-    observer.observe(hero);
-    return () => observer.disconnect();
-  }, []);
+    if (!isVisible) {
+      setMenuOpen(false);
+    }
+  }, [isVisible]);
 
   // Handle outside click & Escape
   useEffect(() => {

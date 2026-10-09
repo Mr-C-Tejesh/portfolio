@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import DotMatrixText from './DotMatrixText';
 
-export default function Hero() {
+const Hero = forwardRef((props, ref) => {
   return (
-    <section className="hero-section">
+    <section className="hero-section" ref={ref}>
       <div className="container hero-container">
         <div className="hero-title-block">
           <DotMatrixText text="TEJESH C" />
@@ -14,4 +14,6 @@ export default function Hero() {
       </div>
     </section>
   );
-}
+});
+
+export default Hero;
