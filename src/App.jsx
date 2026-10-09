@@ -4,6 +4,7 @@ import NavigationPill from './components/NavigationPill';
 import Home from './pages/Home';
 import Work from './pages/Work';
 import ProjectDetail from './pages/ProjectDetail';
+import Resume from './pages/Resume';
 
 function AppContent() {
   const location = useLocation();
@@ -30,6 +31,7 @@ function AppContent() {
         <Route path="/" element={<Home onHeroVisible={handleHeroVisible} />} />
         <Route path="/work" element={<Work />} />
         <Route path="/work/:slug" element={<ProjectDetail />} />
+        <Route path="/resume" element={<Resume />} />
         {/* Fallback route for unknown paths */}
         <Route path="*" element={<ProjectDetail />} />
       </Routes>
