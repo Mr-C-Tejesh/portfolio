@@ -95,3 +95,17 @@ def test_rate_limiting(monkeypatch):
     with rate_limit_lock:
         if "testclient" in client_last_request_time:
             del client_last_request_time["testclient"]
+
+@pytest.mark.parametrize("value,expected", [
+    ("not-a-number", 5.0),
+    ("", 5.0),
+    ("0", 5.0),
+    ("-1", 5.0),
+    ("nan", 5.0),
+    ("inf", 5.0),
+    ("-inf", 5.0),
+    ("10.5", 10.5),
+])
+def test_parse_rate_limit(value, expected):
+    from backend.main import parse_rate_limit
+    assert parse_rate_limit(value) == expected

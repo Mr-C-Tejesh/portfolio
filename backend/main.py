@@ -1,5 +1,6 @@
 import os
 import time
+import math
 import threading
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -41,17 +42,21 @@ class ChatRequest(BaseModel):
 rate_limit_lock = threading.Lock()
 client_last_request_time = {}
 
+def parse_rate_limit(env_value: str) -> float:
+    try:
+        val = float(env_value)
+        if not math.isfinite(val) or val <= 0:
+            return 5.0
+        return val
+    except (ValueError, TypeError):
+        return 5.0
+
 @app.post("/api/chat")
 def chat_endpoint(request: Request, chat_req: ChatRequest):
     client_ip = request.client.host if request.client else "unknown"
     now = time.monotonic()
 
-    try:
-        rate_limit_seconds = float(os.getenv("CHAT_RATE_LIMIT_SECONDS", "5.0"))
-        if rate_limit_seconds <= 0:
-            rate_limit_seconds = 5.0
-    except (ValueError, TypeError):
-        rate_limit_seconds = 5.0
+    rate_limit_seconds = parse_rate_limit(os.getenv("CHAT_RATE_LIMIT_SECONDS", "5.0"))
 
     with rate_limit_lock:
         # Cleanup expired items
