@@ -759,16 +759,39 @@ img, picture, video, canvas, svg {
 .btn-explore {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-2);
   font-family: var(--font-family-mono);
   font-size: var(--text-size-small);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  padding: 12px 20px;
+  padding: 12px 24px;
   background-color: var(--color-canvas-secondary);
   border-radius: var(--radius-full);
-  z-index: 2;
+  z-index: 10;
   position: relative;
+  cursor: pointer;
+  color: var(--color-text-primary);
+  text-decoration: none;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.btn-explore:hover {
+  background-color: var(--color-border-primary);
+}
+
+.btn-explore:focus-visible {
+  outline: 2px solid var(--color-text-primary);
+  outline-offset: 2px;
+}
+
+.btn-explore svg {
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.btn-explore-text {
+  pointer-events: none;
 }
 
 .section-footer {

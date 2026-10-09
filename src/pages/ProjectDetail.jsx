@@ -51,12 +51,12 @@ export default function ProjectDetail() {
               <div className="project-links">
                 {project.demoUrl && (
                   <a href={project.demoUrl} target="_blank" rel="noopener noreferrer" className="btn-external font-mono">
-                    Live Demo <span aria-hidden="true">&nearr;</span>
+                    Live Demo <span aria-hidden="true">↗</span>
                   </a>
                 )}
                 {project.repositoryUrl && (
                   <a href={project.repositoryUrl} target="_blank" rel="noopener noreferrer" className="btn-external font-mono">
-                    GitHub <span aria-hidden="true">&nearr;</span>
+                    GitHub <span aria-hidden="true">↗</span>
                   </a>
                 )}
               </div>
@@ -138,7 +138,7 @@ export default function ProjectDetail() {
                   {project.additionalLinks.map((link, i) => (
                     <li key={i}>
                       <a href={link.url} target="_blank" rel="noopener noreferrer" className="btn-text-link font-mono">
-                        {link.label} <span aria-hidden="true">&nearr;</span>
+                        {link.label} <span aria-hidden="true">↗</span>
                       </a>
                     </li>
                   ))}

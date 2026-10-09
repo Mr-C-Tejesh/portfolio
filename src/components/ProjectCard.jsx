@@ -32,17 +32,17 @@ export default function ProjectCard({ project, index }) {
         <div className="project-external-links">
           {project.demoUrl && (
             <a href={project.demoUrl} target="_blank" rel="noopener noreferrer" className="btn-text-link font-mono">
-              Live Demo <span aria-hidden="true">&nearr;</span>
+              Live Demo <span aria-hidden="true">↗</span>
             </a>
           )}
           {project.repositoryUrl && (
             <a href={project.repositoryUrl} target="_blank" rel="noopener noreferrer" className="btn-text-link font-mono">
-              GitHub <span aria-hidden="true">&nearr;</span>
+              GitHub <span aria-hidden="true">↗</span>
             </a>
           )}
         </div>
         <Link to={`/work/${project.slug}`} className="btn-explore" aria-label={`Explore ${project.title}`}>
-          Explore Project
+          <span className="btn-explore-text">Explore Project</span>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
