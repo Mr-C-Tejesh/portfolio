@@ -25,7 +25,7 @@ export default function ProjectDetail() {
   }
 
   return (
-    <main id="top" className="page-project-detail">
+    <main id="top" className="page-project-detail theme-light" style={{ backgroundColor: 'var(--color-canvas-primary)', color: 'var(--color-text-primary)', minHeight: '100vh' }}>
       <article className="project-detail-article">
         <header className="project-header section">
           <div className="container">

@@ -685,13 +685,7 @@ img, picture, video, canvas, svg {
 
 .project-link {
   color: inherit;
-}
-
-.project-link::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  z-index: 1;
+  text-decoration: none;
 }
 
 .project-description {
@@ -984,24 +978,24 @@ img, picture, video, canvas, svg {
   line-height: 1;
 }
 
-.btn-print {
+.btn-download {
   display: inline-flex;
   align-items: center;
-  padding: 8px 16px;
-  background: transparent;
-  border: 1px solid var(--color-border-primary);
+  padding: 12px 24px;
+  background-color: var(--color-text-primary);
+  border: none;
   border-radius: var(--radius-full);
-  font-size: var(--text-size-xs);
+  font-size: var(--text-size-small);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--color-text-primary);
+  color: var(--color-canvas-primary);
   cursor: pointer;
+  text-decoration: none;
   transition: all var(--transition-fast);
 }
 
-.btn-print:hover {
-  background-color: var(--color-text-primary);
-  color: var(--color-canvas-primary);
+.btn-download:hover {
+  opacity: 0.9;
 }
 
 .resume-section {
@@ -1122,82 +1116,4 @@ img, picture, video, canvas, svg {
   margin-top: var(--space-1);
 }
 
-/* ==========================================================================
-   PRINT STYLES
-   ========================================================================== */
-@media print {
-  body, html {
-    background-color: #FFFFFF !important;
-    color: #000000 !important;
-    font-size: 11pt;
-  }
-
-  /* Hide UI elements not meant for print */
-  .no-print,
-  .navigation-container,
-  .navigation-pill,
-  #navigation-menu {
-    display: none !important;
-  }
-
-  /* Reset padding/margins for the page */
-  .page-resume {
-    padding: 0 !important;
-  }
-
-  .resume-container {
-    max-width: 100% !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-
-  /* Adjust typography for print */
-  .resume-title {
-    font-size: 24pt !important;
-    margin-bottom: 12pt !important;
-  }
-
-  .resume-section-title {
-    font-size: 10pt !important;
-    color: #333333 !important;
-    min-width: 150px !important;
-  }
-
-  .resume-section {
-    margin-top: 16pt !important;
-    margin-bottom: 16pt !important;
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 16pt !important;
-  }
-
-  .resume-item-title, .resume-text {
-    font-size: 11pt !important;
-    color: #000000 !important;
-  }
-
-  .resume-item-subtitle, .resume-tech-stack {
-    font-size: 9pt !important;
-    color: #555555 !important;
-  }
-
-  .section-divider {
-    background-color: #DDDDDD !important;
-    margin-top: 8pt !important;
-    margin-bottom: 16pt !important;
-  }
-
-  .resume-project-item {
-    border-bottom-color: #DDDDDD !important;
-    margin-bottom: 12pt !important;
-    padding-bottom: 12pt !important;
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-
-  .resume-section {
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-}
+/* Remove print styles completely */

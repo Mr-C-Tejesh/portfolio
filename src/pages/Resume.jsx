@@ -7,10 +7,6 @@ export default function Resume() {
     window.scrollTo(0, 0);
   }, []);
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   // The actual resume only features 4 specific projects in a specific order.
   const resumeProjectSlugs = [
     'talentstream-ai',
@@ -21,22 +17,19 @@ export default function Resume() {
   const resumeProjects = resumeProjectSlugs.map(slug => projects.find(p => p.slug === slug)).filter(Boolean);
 
   return (
-    <main id="top" className="page-resume">
+    <main id="top" className="page-resume theme-light" style={{ backgroundColor: 'var(--color-canvas-primary)', color: 'var(--color-text-primary)', minHeight: '100vh' }}>
       <div className="container resume-container">
         
         <header className="resume-header">
           <h1 className="font-display resume-title">RESUME</h1>
-          <div className="resume-actions no-print" style={{ display: 'flex', gap: '16px' }}>
+          <div className="resume-actions">
             <a
               href="/resume/C_Tejesh_Resume.pdf"
               download="C_Tejesh_Resume.pdf"
-              className="btn-print font-mono"
+              className="btn-download font-mono"
             >
               DOWNLOAD RESUME ↓
             </a>
-            <button className="btn-print font-mono" onClick={handlePrint}>
-              PRINT
-            </button>
           </div>
         </header>
         

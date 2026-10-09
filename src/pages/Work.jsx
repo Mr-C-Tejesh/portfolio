@@ -8,7 +8,7 @@ export default function Work() {
   }, []);
 
   return (
-    <main id="top" className="page-work">
+    <main id="top" className="page-work theme-light" style={{ backgroundColor: 'var(--color-canvas-primary)', color: 'var(--color-text-primary)', minHeight: '100vh', paddingBottom: 'var(--space-16)' }}>
       <section className="section work-header-section">
         <div className="container">
           <header className="page-header">
