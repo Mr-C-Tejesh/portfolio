@@ -357,25 +357,29 @@ def test_contact_validation_message(monkeypatch):
 # --- CONTACT EMAIL UNIT TESTS ---
 
 def test_send_contact_email_success(monkeypatch):
-    monkeypatch.setenv("RESEND_API_KEY", "test_key")
+    monkeypatch.setenv("GMAIL_CLIENT_ID", "test_client_id")
+    monkeypatch.setenv("GMAIL_CLIENT_SECRET", "test_client_secret")
+    monkeypatch.setenv("GMAIL_REFRESH_TOKEN", "test_refresh_token")
+    monkeypatch.setenv("GMAIL_SENDER_EMAIL", "from@example.com")
     monkeypatch.setenv("CONTACT_TO_EMAIL", "to@example.com")
-    monkeypatch.setenv("CONTACT_FROM_EMAIL", "from@example.com")
 
-    call_args = {}
+    post_args = {}
 
-    class FakeEmails:
-        @staticmethod
-        def send(kwargs):
-            call_args.update(kwargs)
-            return {"id": "email_123"}
+    class FakeResponse:
+        def raise_for_status(self):
+            pass
+        def json(self):
+            return {"access_token": "fake_access_token"}
 
-    class FakeResend:
-        api_key = "test_key"
-        Emails = FakeEmails()
+    def fake_post(url, **kwargs):
+        if url == "https://oauth2.googleapis.com/token":
+            return FakeResponse()
+        elif url == "https://gmail.googleapis.com/gmail/v1/users/me/messages/send":
+            post_args.update(kwargs)
+            return FakeResponse()
 
-    import sys
-    # Monkeypatch the resend module directly
-    monkeypatch.setattr("backend.contact_email.resend", FakeResend)
+    import requests
+    monkeypatch.setattr(requests, "post", fake_post)
 
     from backend.contact_email import send_contact_email
 
@@ -388,22 +392,43 @@ def test_send_contact_email_success(monkeypatch):
     )
 
     assert success is True
-    assert call_args["to"] == "to@example.com"
-    assert call_args["from"] == "from@example.com"
-    assert call_args["reply_to"] == "visitor@example.com"
-    assert call_args["subject"] == "New portfolio enquiry — <script>alert(1)</script> Doe"
+    assert "headers" in post_args
+    assert post_args["headers"]["Authorization"] == "Bearer fake_access_token"
+    assert "json" in post_args
+    assert "raw" in post_args["json"]
+
+    import base64
+    raw_decoded = base64.urlsafe_b64decode(post_args["json"]["raw"]).decode()
+
+    import email
+    msg = email.message_from_string(raw_decoded)
+
+    assert msg["To"] == "to@example.com"
+    assert msg["From"] == "from@example.com"
+    assert msg["Reply-To"] == "visitor@example.com"
+
+    from email.header import decode_header
+    decoded_subject = "".join([
+        t[0].decode(t[1] or "utf-8") if isinstance(t[0], bytes) else t[0]
+        for t in decode_header(msg["Subject"])
+    ])
+    assert "New portfolio enquiry" in decoded_subject
+
+    # Check body
+    plain_part = msg.get_payload(0).get_payload()
+    html_part = msg.get_payload(1).get_payload()
 
     # Check escaping in HTML
-    assert "&lt;script&gt;alert(1)&lt;/script&gt;" in call_args["html"]
+    assert "&lt;script&gt;alert(1)&lt;/script&gt;" in html_part
     # Check newline replacement
-    assert "Hello!<br>New line here." in call_args["html"]
+    assert "Hello!<br>New line here." in html_part
 
     # Text content should have un-escaped but raw string
-    assert "<script>alert(1)</script>" in call_args["text"]
-    assert "Hello!\nNew line here." in call_args["text"]
+    assert "<script>alert(1)</script>" in plain_part
+    assert "Hello!\nNew line here." in plain_part
 
 def test_send_contact_email_missing_config(monkeypatch, capsys):
-    monkeypatch.setenv("RESEND_API_KEY", "")
+    monkeypatch.setenv("GMAIL_REFRESH_TOKEN", "")
 
     from backend.contact_email import send_contact_email
     success = send_contact_email("John", "Doe", "test@example.com", "", "Hi")
@@ -411,29 +436,35 @@ def test_send_contact_email_missing_config(monkeypatch, capsys):
 
     captured = capsys.readouterr()
     assert "Diagnostic [Contact]: Email service missing configuration" in captured.out
-    assert "RESEND_API_KEY" in captured.out
+    assert "GMAIL_REFRESH_TOKEN" in captured.out
 
 def test_send_contact_email_provider_error(monkeypatch, capsys):
-    monkeypatch.setenv("RESEND_API_KEY", "secret_resend_key_123")
+    monkeypatch.setenv("GMAIL_CLIENT_ID", "test_client_id")
+    monkeypatch.setenv("GMAIL_CLIENT_SECRET", "test_client_secret")
+    monkeypatch.setenv("GMAIL_REFRESH_TOKEN", "secret_gmail_refresh_token_123")
+    monkeypatch.setenv("GMAIL_SENDER_EMAIL", "from@example.com")
     monkeypatch.setenv("CONTACT_TO_EMAIL", "to@example.com")
-    monkeypatch.setenv("CONTACT_FROM_EMAIL", "from@example.com")
 
-    class FakeEmails:
-        @staticmethod
-        def send(kwargs):
-            raise Exception("API error inside provider")
+    class FakeResponse:
+        def raise_for_status(self):
+            pass
+        def json(self):
+            return {"access_token": "fake_access_token"}
 
-    class FakeResend:
-        api_key = "secret_resend_key_123"
-        Emails = FakeEmails()
+    def fake_post(url, **kwargs):
+        if url == "https://oauth2.googleapis.com/token":
+            return FakeResponse()
+        elif url == "https://gmail.googleapis.com/gmail/v1/users/me/messages/send":
+            raise Exception("API error inside Gmail provider")
 
-    monkeypatch.setattr("backend.contact_email.resend", FakeResend)
+    import requests
+    monkeypatch.setattr(requests, "post", fake_post)
 
     from backend.contact_email import send_contact_email
     success = send_contact_email("John", "Doe", "test@example.com", "", "Hi")
     assert success is False
 
     captured = capsys.readouterr()
-    assert "Diagnostic [Contact]: Resend API email delivery failed" in captured.out
-    assert "secret_resend_key_123" not in captured.out
-    assert "API error inside provider" in captured.out
+    assert "Diagnostic [Contact]: Gmail API email delivery failed" in captured.out
+    assert "secret_gmail_refresh_token_123" not in captured.out
+    assert "API error inside Gmail provider" in captured.out

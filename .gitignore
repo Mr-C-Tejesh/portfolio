@@ -154,3 +154,8 @@ __pycache__/
 *.class
 backend/.venv/
 .DS_Store
+
+# Local secrets and OAuth tokens
+backend/scripts/secrets/
+client_secret*.json
+token.json
