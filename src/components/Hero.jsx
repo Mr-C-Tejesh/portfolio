@@ -10,6 +10,14 @@ const Hero = forwardRef((props, ref) => {
           <p className="hero-description">
             I build practical AI systems and the software behind them.
           </p>
+          <div className="hero-actions">
+            <a href="#work" className="btn-primary font-mono">
+              VIEW SELECTED WORK
+            </a>
+            <a href="/resume/C_Tejesh_Resume.pdf" className="btn-secondary font-mono" download>
+              DOWNLOAD RESUME
+            </a>
+          </div>
         </div>
       </div>
     </section>

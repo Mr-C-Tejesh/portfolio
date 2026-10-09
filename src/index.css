@@ -1397,3 +1397,152 @@ img, picture, video, canvas, svg {
 .assistant-markdown strong {
   font-weight: 600;
 }
+
+/* Recruiter-First Homepage Additions */
+
+.btn-primary, .btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--text-size-small);
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border-radius: var(--radius-full);
+}
+
+.btn-primary {
+  background-color: var(--color-text-primary);
+  color: var(--color-canvas-primary);
+  border: 1px solid var(--color-text-primary);
+}
+
+.btn-primary:hover, .btn-primary:focus-visible {
+  background-color: transparent;
+  color: var(--color-text-primary);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-text-primary);
+}
+
+.btn-secondary:hover, .btn-secondary:focus-visible {
+  background-color: var(--color-text-primary);
+  color: var(--color-canvas-primary);
+}
+
+/* Hero Actions */
+.hero-actions {
+  margin-top: var(--space-6);
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+/* Recruiter Index */
+.recruiter-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+}
+
+@media (min-width: 768px) {
+  .recruiter-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.recruiter-card {
+  border: 1px solid var(--color-border-primary);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+}
+
+.recruiter-card-title {
+  margin-bottom: var(--space-3);
+  font-size: 1.1rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.recruiter-card-desc {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-5);
+  flex-grow: 1;
+  font-size: var(--text-size-base);
+  line-height: 1.5;
+}
+
+.recruiter-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.recruiter-list li {
+  margin-bottom: var(--space-2);
+}
+
+.recruiter-card-actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.recruiter-card-links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.recruiter-link {
+  color: var(--color-text-primary);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.recruiter-link:hover, .recruiter-link:focus-visible {
+  opacity: 0.7;
+}
+
+/* Contact Strip */
+.contact-strip-section {
+  padding-top: var(--space-8);
+  padding-bottom: var(--space-8);
+  border-top: 1px solid var(--color-border-primary);
+}
+
+.contact-strip-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+@media (min-width: 768px) {
+  .contact-strip-container {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.contact-strip-title {
+  font-size: 1.5rem;
+  margin-bottom: var(--space-1);
+}
+
+.contact-strip-subtitle {
+  color: var(--color-text-secondary);
+}
+
+.contact-strip-actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
