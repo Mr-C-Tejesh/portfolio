@@ -6,16 +6,20 @@ export default function DotMatrixText({ text = "TEJESH C." }) {
   const dotsRef = useRef([]);
   const mouseRef = useRef({ x: -1000, y: -1000, radius: 100 });
   const reqRef = useRef(null);
+  const colorRef = useRef('#FFFFFF');
 
   useEffect(() => {
+    // Resolve the CSS variable for the dot color, defaulting to pure white
+    colorRef.current = getComputedStyle(document.documentElement).getPropertyValue('--color-white').trim() || '#FFFFFF';
+
     let observer;
     document.fonts.ready.then(() => {
       initCanvas();
-      
+
       observer = new ResizeObserver(() => {
         initCanvas();
       });
-      
+
       if (containerRef.current) {
         observer.observe(containerRef.current);
       }
@@ -33,24 +37,27 @@ export default function DotMatrixText({ text = "TEJESH C." }) {
     if (!canvas || !container) return;
 
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    // Reset any existing transforms before re-initializing
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const rect = container.getBoundingClientRect();
-    
+
     const width = rect.width;
     const offCanvas = document.createElement('canvas');
     const octx = offCanvas.getContext('2d', { willReadFrequently: true });
-    
+
     let fontSize = 300;
     octx.font = `900 ${fontSize}px "Inter", sans-serif`;
     let metrics = octx.measureText(text);
-    
+
     if (metrics.width > width * 0.95) {
       fontSize = Math.floor(fontSize * (width * 0.95) / metrics.width);
       octx.font = `900 ${fontSize}px "Inter", sans-serif`;
     }
-    
+
     const height = Math.max(Math.ceil(fontSize * 1.5), 100);
-    
+
     canvas.width = width * dpr;
     canvas.height = height * dpr;
     canvas.style.width = `${width}px`;
@@ -59,7 +66,7 @@ export default function DotMatrixText({ text = "TEJESH C." }) {
 
     offCanvas.width = width;
     offCanvas.height = height;
-    
+
     octx.font = `900 ${fontSize}px "Inter", sans-serif`;
     octx.textAlign = 'center';
     octx.textBaseline = 'middle';
@@ -71,7 +78,7 @@ export default function DotMatrixText({ text = "TEJESH C." }) {
 
     const gap = Math.max(Math.floor(width / 150), 4);
     const radius = gap * 0.35;
-    
+
     const newDots = [];
     for (let y = 0; y < height; y += gap) {
       for (let x = 0; x < width; x += gap) {
@@ -90,15 +97,16 @@ export default function DotMatrixText({ text = "TEJESH C." }) {
         }
       }
     }
-    
+
     dotsRef.current = newDots;
     draw(ctx, width, height, dpr);
   };
 
   const draw = (ctx, width, height, dpr) => {
     ctx.clearRect(0, 0, width, height);
-    ctx.fillStyle = 'var(--color-white)';
-    
+    // Use the resolved color token instead of a CSS variable string that Canvas 2D API cannot parse
+    ctx.fillStyle = colorRef.current;
+
     const dots = dotsRef.current;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const hasFinePointer = window.matchMedia('(pointer: fine)').matches;
@@ -111,11 +119,13 @@ export default function DotMatrixText({ text = "TEJESH C." }) {
 
         for (let i = 0; i < dots.length; i++) {
           const dot = dots[i];
-          
+          const oldX = dot.x;
+          const oldY = dot.y;
+
           const dx = mouse.x - dot.x;
           const dy = mouse.y - dot.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          
+
           if (dist < mouse.radius) {
             const angle = Math.atan2(dy, dx);
             const force = (mouse.radius - dist) / mouse.radius;
@@ -125,14 +135,15 @@ export default function DotMatrixText({ text = "TEJESH C." }) {
 
           dot.vx += (dot.originX - dot.x) * spring;
           dot.vy += (dot.originY - dot.y) * spring;
-          
+
           dot.vx *= friction;
           dot.vy *= friction;
-          
+
           dot.x += dot.vx;
           dot.y += dot.vy;
-          
-          if (Math.abs(dot.vx) > 0.01 || Math.abs(dot.vy) > 0.01 || Math.abs(dot.x - dot.originX) > 0.01) {
+
+          // Stop animating when all dots have settled into equilibrium (no movement)
+          if (Math.abs(dot.x - oldX) > 0.01 || Math.abs(dot.y - oldY) > 0.01) {
               needsUpdate = true;
           }
         }
@@ -162,17 +173,26 @@ export default function DotMatrixText({ text = "TEJESH C." }) {
     const rect = canvas.getBoundingClientRect();
     mouseRef.current.x = e.clientX - rect.left;
     mouseRef.current.y = e.clientY - rect.top;
-    
+
     if (reqRef.current) cancelAnimationFrame(reqRef.current);
     const ctx = canvas.getContext('2d');
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    
+
     reqRef.current = requestAnimationFrame(() => draw(ctx, canvas.width / dpr, canvas.height / dpr, dpr));
   };
 
   const handlePointerLeave = () => {
     mouseRef.current.x = -1000;
     mouseRef.current.y = -1000;
+
+    // Ensure we trigger the loop to return dots to origin
+    if (reqRef.current) cancelAnimationFrame(reqRef.current);
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      reqRef.current = requestAnimationFrame(() => draw(ctx, canvas.width / dpr, canvas.height / dpr, dpr));
+    }
   };
 
   return (
