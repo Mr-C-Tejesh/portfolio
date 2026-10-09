@@ -46,7 +46,12 @@ def chat_endpoint(request: Request, chat_req: ChatRequest):
     client_ip = request.client.host if request.client else "unknown"
     now = time.monotonic()
 
-    rate_limit_seconds = float(os.getenv("CHAT_RATE_LIMIT_SECONDS", "5.0"))
+    try:
+        rate_limit_seconds = float(os.getenv("CHAT_RATE_LIMIT_SECONDS", "5.0"))
+        if rate_limit_seconds <= 0:
+            rate_limit_seconds = 5.0
+    except (ValueError, TypeError):
+        rate_limit_seconds = 5.0
 
     with rate_limit_lock:
         # Cleanup expired items

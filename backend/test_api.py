@@ -43,9 +43,10 @@ def test_chat_success(monkeypatch):
     monkeypatch.setattr(genai, "Client", FakeClient)
 
     # Reset rate limit state for testclient
-    from backend.main import client_last_request_time
-    if "testclient" in client_last_request_time:
-        del client_last_request_time["testclient"]
+    from backend.main import client_last_request_time, rate_limit_lock
+    with rate_limit_lock:
+        if "testclient" in client_last_request_time:
+            del client_last_request_time["testclient"]
 
     response = client.post("/api/chat", json={"messages": [{"role": "user", "content": "hi"}]})
     assert response.status_code == 200
@@ -61,12 +62,29 @@ def test_rate_limiting(monkeypatch):
     monkeypatch.setenv("GEMINI_API_KEY", "fake_key")
     monkeypatch.setenv("CHAT_RATE_LIMIT_SECONDS", "100.0")
 
-    from backend.main import client_last_request_time
-    if "testclient" in client_last_request_time:
-        del client_last_request_time["testclient"]
+    class FakeResponse:
+        text = "Hello, rate limit test."
+
+    class FakeModels:
+        def generate_content(self, model, contents, config):
+            return FakeResponse()
+
+    class FakeClient:
+        def __init__(self, api_key, **kwargs):
+            self.models = FakeModels()
+
+    import google.genai as genai
+    monkeypatch.setattr(genai, "Client", FakeClient)
+
+    from backend.main import client_last_request_time, rate_limit_lock
+
+    with rate_limit_lock:
+        if "testclient" in client_last_request_time:
+            del client_last_request_time["testclient"]
 
     # First request
-    client.post("/api/chat", json={"messages": [{"role": "user", "content": "hi"}]})
+    response1 = client.post("/api/chat", json={"messages": [{"role": "user", "content": "hi"}]})
+    assert response1.status_code == 200
 
     # Second request should be rate limited
     response2 = client.post("/api/chat", json={"messages": [{"role": "user", "content": "hi"}]})
@@ -74,5 +92,6 @@ def test_rate_limiting(monkeypatch):
     assert "Rate limit exceeded" in response2.json()["detail"]
 
     # Clean up
-    if "testclient" in client_last_request_time:
-        del client_last_request_time["testclient"]
+    with rate_limit_lock:
+        if "testclient" in client_last_request_time:
+            del client_last_request_time["testclient"]
