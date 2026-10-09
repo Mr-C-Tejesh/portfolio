@@ -12,7 +12,7 @@ const IntroSection = forwardRef((props, ref) => {
             ENGINEERING INTELLIGENCE INTO SOFTWARE.
           </h2>
           <p className="intro-description">
-            I'm Tejesh, a computer science student building practical AI applications, intelligent agents, and the software systems around them.
+            I'm Tejesh, a Computer Science student focused on building practical AI applications, intelligent agents, and the software systems around them.
           </p>
         </div>
         <div className="intro-portrait-placeholder" ref={ref}>

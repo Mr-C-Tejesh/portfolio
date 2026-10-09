@@ -20,10 +20,8 @@ def get_access_token(client_id: str, client_secret: str, refresh_token: str) -> 
     return response.json()["access_token"]
 
 def send_contact_email(
-    first_name: str,
-    last_name: str,
+    name: str,
     email: str,
-    phone: str,
     message: str
 ) -> bool:
     """
@@ -50,10 +48,8 @@ def send_contact_email(
         return False
 
     # Escape HTML to prevent injection
-    safe_first_name = html.escape(first_name)
-    safe_last_name = html.escape(last_name)
+    safe_name = html.escape(name)
     safe_email = html.escape(email)
-    safe_phone = html.escape(phone)
     safe_message = html.escape(message).replace("\n", "<br>")
 
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
@@ -61,9 +57,8 @@ def send_contact_email(
     text_content = f"""
 New Portfolio Enquiry
 
-Name: {first_name} {last_name}
+Name: {name}
 Email: {email}
-Phone: {phone}
 Time: {timestamp}
 
 Message:
@@ -72,9 +67,8 @@ Message:
 
     html_content = f"""
     <h2>New Portfolio Enquiry</h2>
-    <p><strong>Name:</strong> {safe_first_name} {safe_last_name}</p>
+    <p><strong>Name:</strong> {safe_name}</p>
     <p><strong>Email:</strong> {safe_email}</p>
-    <p><strong>Phone:</strong> {safe_phone}</p>
     <p><strong>Time:</strong> {timestamp}</p>
     <hr>
     <h3>Message:</h3>
@@ -83,7 +77,7 @@ Message:
 
     # Create MIME message
     mime_message = MIMEMultipart("alternative")
-    mime_message["Subject"] = f"New portfolio enquiry — {first_name} {last_name}"
+    mime_message["Subject"] = f"New portfolio enquiry — {name}"
     mime_message["From"] = sender_email
     mime_message["To"] = to_email
     mime_message["Reply-To"] = email
@@ -119,9 +113,7 @@ Message:
 
         # Redact known visitor PII from the error summary
         if email: short_msg = short_msg.replace(email, "[REDACTED_EMAIL]")
-        if phone: short_msg = short_msg.replace(phone, "[REDACTED_PHONE]")
-        if first_name: short_msg = short_msg.replace(first_name, "[REDACTED_NAME]")
-        if last_name: short_msg = short_msg.replace(last_name, "[REDACTED_NAME]")
+        if name: short_msg = short_msg.replace(name, "[REDACTED_NAME]")
 
         error_msg += f", Summary: {short_msg}"
         print(error_msg)

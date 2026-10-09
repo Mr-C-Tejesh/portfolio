@@ -137,15 +137,12 @@ def chat_endpoint(request: Request, chat_req: ChatRequest):
         )
 
 class ContactRequest(BaseModel):
-    firstName: str = Field(..., max_length=100)
-    lastName: str = Field(..., max_length=100)
+    name: str = Field(..., max_length=150)
     email: EmailStr
-    confirmEmail: EmailStr
-    phone: Optional[str] = Field(default="", max_length=50)
     message: str = Field(..., min_length=1, max_length=3000)
     honeypot: Optional[str] = None
 
-    @field_validator("firstName", "lastName")
+    @field_validator("name")
     @classmethod
     def validate_name(cls, v: str) -> str:
         # Reject control characters (CR, LF, etc.) before stripping
@@ -164,18 +161,10 @@ class ContactRequest(BaseModel):
             raise ValueError("Message cannot be empty or just whitespace.")
         return v
 
-    @field_validator("phone")
-    @classmethod
-    def validate_phone(cls, v: Optional[str]) -> str:
-        if v is None:
-            return ""
-        return v.strip()
+
 
 @app.post("/api/contact")
 def contact_endpoint(request: Request, contact_req: ContactRequest):
-    # Validation: Confirm email matching (case-insensitive)
-    if contact_req.email.lower() != contact_req.confirmEmail.lower():
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Emails do not match.")
 
     # Honeypot check: If filled, act like it succeeded but do nothing.
     if contact_req.honeypot:
@@ -203,10 +192,8 @@ def contact_endpoint(request: Request, contact_req: ContactRequest):
 
     # Send email
     success = send_contact_email(
-        first_name=contact_req.firstName.strip(),
-        last_name=contact_req.lastName.strip(),
+        name=contact_req.name.strip(),
         email=contact_req.email.strip(),
-        phone=contact_req.phone.strip(),
         message=contact_req.message.strip()
     )
 

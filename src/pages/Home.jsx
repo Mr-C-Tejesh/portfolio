@@ -92,7 +92,7 @@ export default function Home({ onHeroVisible, onThemeChange }) {
             </div>
 
             <div className="recruiter-card">
-              <h3 className="font-mono recruiter-card-title">B. Bio-data snapshot</h3>
+              <h3 className="font-mono recruiter-card-title">B. Profile</h3>
               <div className="recruiter-card-desc">
                 <ul className="recruiter-list">
                   <li><strong>Education:</strong> B.E. Computer Science and Engineering</li>
@@ -147,6 +147,42 @@ export default function Home({ onHeroVisible, onThemeChange }) {
             <Link to="/work" className="btn-view-all font-mono">
               View all work <span aria-hidden="true">&rarr;</span>
             </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="section under-the-hood-section">
+        <div className="container">
+          <header className="section-header">
+            <h2 className="font-display section-title">UNDER THE HOOD</h2>
+            <div className="section-divider"></div>
+            <p className="font-mono section-subtitle" style={{marginTop: 'var(--space-2)'}}>BUILT WITH.</p>
+          </header>
+          <p className="under-the-hood-intro" style={{marginBottom: 'var(--space-6)', color: 'var(--color-text-secondary)'}}>
+            This portfolio combines a responsive frontend, a validated backend, a grounded AI assistant and authenticated email delivery.
+          </p>
+
+          <div className="recruiter-grid">
+            <div className="recruiter-card" style={{padding: 'var(--space-4)'}}>
+              <h3 className="font-mono recruiter-card-title" style={{marginBottom: 'var(--space-1)'}}>FRONTEND</h3>
+              <p className="recruiter-card-desc" style={{marginBottom: '0'}}>React · Vite · React Router</p>
+            </div>
+            <div className="recruiter-card" style={{padding: 'var(--space-4)'}}>
+              <h3 className="font-mono recruiter-card-title" style={{marginBottom: 'var(--space-1)'}}>BACKEND</h3>
+              <p className="recruiter-card-desc" style={{marginBottom: '0'}}>Python · FastAPI · Pydantic</p>
+            </div>
+            <div className="recruiter-card" style={{padding: 'var(--space-4)'}}>
+              <h3 className="font-mono recruiter-card-title" style={{marginBottom: 'var(--space-1)'}}>AI</h3>
+              <p className="recruiter-card-desc" style={{marginBottom: '0'}}>Google Gemini · Curated knowledge base</p>
+            </div>
+            <div className="recruiter-card" style={{padding: 'var(--space-4)'}}>
+              <h3 className="font-mono recruiter-card-title" style={{marginBottom: 'var(--space-1)'}}>EMAIL INTEGRATION</h3>
+              <p className="recruiter-card-desc" style={{marginBottom: '0'}}>Gmail API · OAuth</p>
+            </div>
+            <div className="recruiter-card" style={{padding: 'var(--space-4)'}}>
+              <h3 className="font-mono recruiter-card-title" style={{marginBottom: 'var(--space-1)'}}>DEPLOYMENT</h3>
+              <p className="recruiter-card-desc" style={{marginBottom: '0'}}>Render · GitHub</p>
+            </div>
           </div>
         </div>
       </section>

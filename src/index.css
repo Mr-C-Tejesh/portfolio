@@ -667,9 +667,11 @@ img, picture, video, canvas, svg {
 .project-card {
   display: flex;
   flex-direction: column;
-  padding: var(--space-6) 0;
+  padding: var(--space-6) var(--space-4);
+  margin: 0 calc(-1 * var(--space-4));
   border-bottom: 1px solid var(--color-border-secondary);
-  transition: opacity 0.3s ease;
+  border-radius: var(--radius-lg);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
   position: relative;
 }
 
@@ -682,8 +684,10 @@ img, picture, video, canvas, svg {
   }
 }
 
-.project-card:hover {
-  opacity: 0.85;
+.project-card:hover,
+.project-card:focus-within {
+  background-color: var(--color-canvas-secondary);
+  border-color: transparent;
 }
 
 .project-card-header, .project-card-content, .project-card-action {

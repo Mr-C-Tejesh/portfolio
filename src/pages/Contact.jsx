@@ -9,11 +9,8 @@ const API_BASE_URL = (() => {
 
 export default function Contact() {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    name: '',
     email: '',
-    confirmEmail: '',
-    phone: '',
     message: '',
     honeypot: ''
   });
@@ -36,12 +33,6 @@ export default function Contact() {
     e.preventDefault();
     if (status === 'submitting') return;
 
-    if (formData.email.trim().toLowerCase() !== formData.confirmEmail.trim().toLowerCase()) {
-      setStatus('error');
-      setErrorMessage('Emails do not match.');
-      return;
-    }
-
     if (!API_BASE_URL) {
       setStatus('error');
       setErrorMessage('The contact service is not configured for this environment.');
@@ -56,11 +47,8 @@ export default function Contact() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          firstName: formData.firstName.trim(),
-          lastName: formData.lastName.trim(),
+          name: formData.name.trim(),
           email: formData.email.trim(),
-          confirmEmail: formData.confirmEmail.trim(),
-          phone: formData.phone.trim(),
           message: formData.message.trim(),
           honeypot: formData.honeypot
         })
@@ -82,11 +70,8 @@ export default function Contact() {
 
       setStatus('success');
       setFormData({
-        firstName: '',
-        lastName: '',
+        name: '',
         email: '',
-        confirmEmail: '',
-        phone: '',
         message: '',
         honeypot: ''
       });
@@ -162,29 +147,13 @@ export default function Contact() {
 
           <div className="contact-form-row">
             <div className="contact-form-group">
-              <label htmlFor="firstName" className="font-mono contact-form-label">FIRST NAME *</label>
-              <input type="text" id="firstName" name="firstName" required className="contact-input" value={formData.firstName} onChange={handleChange} />
+              <label htmlFor="name" className="font-mono contact-form-label">NAME *</label>
+              <input type="text" id="name" name="name" required className="contact-input" value={formData.name} onChange={handleChange} />
             </div>
-            <div className="contact-form-group">
-              <label htmlFor="lastName" className="font-mono contact-form-label">LAST NAME *</label>
-              <input type="text" id="lastName" name="lastName" required className="contact-input" value={formData.lastName} onChange={handleChange} />
-            </div>
-          </div>
-
-          <div className="contact-form-row">
             <div className="contact-form-group">
               <label htmlFor="email" className="font-mono contact-form-label">EMAIL *</label>
               <input type="email" id="email" name="email" required className="contact-input" value={formData.email} onChange={handleChange} />
             </div>
-            <div className="contact-form-group">
-              <label htmlFor="confirmEmail" className="font-mono contact-form-label">CONFIRM EMAIL *</label>
-              <input type="email" id="confirmEmail" name="confirmEmail" required className="contact-input" value={formData.confirmEmail} onChange={handleChange} />
-            </div>
-          </div>
-
-          <div className="contact-form-group">
-            <label htmlFor="phone" className="font-mono contact-form-label">PHONE NUMBER (OPTIONAL)</label>
-            <input type="tel" id="phone" name="phone" className="contact-input" value={formData.phone} onChange={handleChange} />
           </div>
 
           <div className="contact-form-group">
@@ -194,7 +163,7 @@ export default function Contact() {
 
           <div className="contact-form-actions">
             <button type="submit" className="btn-download font-mono" disabled={status === 'submitting'}>
-              {status === 'submitting' ? 'SUBMITTING...' : 'SUBMIT ENQUIRY'}
+              {status === 'submitting' ? 'SUBMITTING...' : 'SEND MESSAGE'}
             </button>
           </div>
         </form>
