@@ -9,11 +9,15 @@ import Resume from './pages/Resume';
 function AppContent() {
   const location = useLocation();
   const [isNavVisible, setIsNavVisible] = useState(false);
+  const [navTheme, setNavTheme] = useState('dark');
 
   // When not on the home page, the navigation is always visible
   useEffect(() => {
     if (location.pathname !== '/') {
       setIsNavVisible(true);
+      setNavTheme('light');
+    } else {
+      setNavTheme('dark');
     }
   }, [location]);
 
@@ -24,11 +28,17 @@ function AppContent() {
     }
   };
 
+  const handleThemeChange = (theme) => {
+    if (location.pathname === '/') {
+      setNavTheme(theme);
+    }
+  };
+
   return (
     <>
-      <NavigationPill isVisible={isNavVisible} />
+      <NavigationPill isVisible={isNavVisible} theme={navTheme} />
       <Routes>
-        <Route path="/" element={<Home onHeroVisible={handleHeroVisible} />} />
+        <Route path="/" element={<Home onHeroVisible={handleHeroVisible} onThemeChange={handleThemeChange} />} />
         <Route path="/work" element={<Work />} />
         <Route path="/work/:slug" element={<ProjectDetail />} />
         <Route path="/resume" element={<Resume />} />

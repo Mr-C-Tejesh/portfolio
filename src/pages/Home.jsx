@@ -27,6 +27,28 @@ export default function Home({ onHeroVisible }) {
     return () => observer.disconnect();
   }, [onHeroVisible]);
 
+  useEffect(() => {
+    if (!onThemeChange) return;
+    const handleScroll = () => {
+      const aboutEl = document.getElementById('about');
+      if (aboutEl) {
+        const rect = aboutEl.getBoundingClientRect();
+        // Trigger light theme when the about section is under the top navbar (approx 50-100px from top)
+        if (rect.top <= 100 && rect.bottom >= 60) {
+          onThemeChange('light');
+        } else {
+          onThemeChange('dark');
+        }
+      }
+    };
+
+    // Initial check
+    handleScroll();
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [onThemeChange]);
+
   return (
     <>
       <Hero ref={heroRef} />

@@ -573,6 +573,40 @@ img, picture, video, canvas, svg {
   }
 }
 
+/* Adaptive Navigation Theme */
+.nav-treatment-light .navigation-pill {
+  background-color: var(--color-black);
+}
+
+.nav-treatment-light .hamburger-line {
+  background-color: var(--color-off-white);
+}
+
+.nav-treatment-light .navigation-menu {
+  background-color: var(--color-black);
+  border-color: var(--color-gray-800);
+}
+
+.nav-treatment-light .navigation-menu a,
+.nav-treatment-light .navigation-menu button,
+.nav-treatment-light .future-link {
+  color: var(--color-off-white) !important;
+}
+
+.nav-treatment-light .navigation-menu a:hover,
+.nav-treatment-light .navigation-menu a:focus-visible {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.nav-treatment-light .hamburger-btn:focus-visible {
+  outline-color: var(--color-off-white);
+}
+
+.nav-treatment-light .future-tag {
+  background-color: var(--color-gray-800);
+  color: var(--color-off-white);
+}
+
 /* ==========================================================================
    PROJECT PAGES & CARDS
    ========================================================================== */
@@ -781,11 +815,9 @@ img, picture, video, canvas, svg {
 
 .btn-explore svg {
   flex-shrink: 0;
-  pointer-events: none;
 }
 
 .btn-explore-text {
-  pointer-events: none;
 }
 
 .section-footer {
@@ -953,7 +985,8 @@ img, picture, video, canvas, svg {
 }
 
 .resume-container {
-  max-width: 800px;
+  max-width: var(--layout-max-width);
+  margin: 0 auto;
 }
 
 .resume-header {
@@ -961,7 +994,7 @@ img, picture, video, canvas, svg {
   flex-direction: column;
   gap: var(--space-4);
   align-items: flex-start;
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-8);
 }
 
 @media (min-width: 768px) {
@@ -973,7 +1006,7 @@ img, picture, video, canvas, svg {
 }
 
 .resume-title {
-  font-size: var(--text-size-h1);
+  font-size: var(--text-size-display);
   margin: 0;
   line-height: 1;
 }
@@ -999,15 +1032,16 @@ img, picture, video, canvas, svg {
 }
 
 .resume-section {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
   margin-top: var(--space-8);
   margin-bottom: var(--space-8);
 }
 
 @media (min-width: 768px) {
   .resume-section {
-    flex-direction: row;
+    grid-template-columns: 240px 1fr;
     gap: var(--space-8);
   }
 }

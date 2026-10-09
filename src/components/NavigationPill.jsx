@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import DotMatrixText from './DotMatrixText';
 
-export default function NavigationPill({ isVisible }) {
+export default function NavigationPill({ isVisible, theme = 'dark' }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const location = useLocation();
@@ -46,7 +46,7 @@ export default function NavigationPill({ isVisible }) {
   const closeMenu = () => setMenuOpen(false);
 
   return (
-    <div className={`navigation-container ${isVisible ? 'is-visible' : ''}`} ref={menuRef}>
+    <div className={`navigation-container nav-treatment-${theme} ${isVisible ? 'is-visible' : ''}`} ref={menuRef}>
       <div className="navigation-pill">
         <div className="pill-left">
           <button
@@ -65,7 +65,7 @@ export default function NavigationPill({ isVisible }) {
         
         <div className="pill-center" aria-hidden="true">
           <div className="pill-wordmark">
-            <DotMatrixText text="TEJESH C" interactive={false} color="#050505" />
+            <DotMatrixText text="TEJESH C" interactive={false} color={theme === 'light' ? "#F2F2F0" : "#050505"} />
           </div>
         </div>
 
