@@ -1172,6 +1172,98 @@ img, picture, video, canvas, svg {
    CONTACT PAGE
    ========================================================================== */
 
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  margin-top: var(--space-6);
+  margin-bottom: var(--space-8);
+  max-width: 768px;
+}
+
+.contact-form-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+@media (min-width: 640px) {
+  .contact-form-row {
+    flex-direction: row;
+    gap: var(--space-4);
+  }
+}
+
+.contact-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex: 1;
+}
+
+.contact-form-label {
+  font-size: var(--text-size-xs);
+  color: var(--color-text-secondary);
+  letter-spacing: 0.1em;
+}
+
+.contact-input {
+  background-color: transparent;
+  border: 1px solid var(--color-border-primary);
+  border-radius: 4px;
+  padding: 12px 16px;
+  font-family: var(--font-family-sans);
+  font-size: var(--text-size-body);
+  color: var(--color-text-primary);
+  transition: border-color var(--transition-fast), outline var(--transition-fast);
+}
+
+.contact-input:focus {
+  outline: none;
+  border-color: var(--color-text-primary);
+}
+
+.contact-textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.contact-form-actions {
+  margin-top: var(--space-2);
+}
+
+.contact-status-msg {
+  padding: 16px;
+  border-radius: 4px;
+  margin-bottom: var(--space-6);
+  font-size: var(--text-size-body);
+  max-width: 768px;
+}
+
+.contact-success {
+  background-color: rgba(0, 128, 0, 0.1);
+  border: 1px solid rgba(0, 128, 0, 0.3);
+  color: var(--color-text-primary);
+}
+
+.contact-error {
+  background-color: rgba(255, 0, 0, 0.1);
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  color: var(--color-text-primary);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 .contact-subheadline {
   font-size: clamp(2rem, 6vw, 4rem);
   margin-top: var(--space-2);

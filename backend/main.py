@@ -4,8 +4,8 @@ import math
 import threading
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
-from typing import List, Literal
+from pydantic import BaseModel, Field, EmailStr
+from typing import List, Literal, Optional
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,6 +14,11 @@ try:
     from knowledge import TEJESH_KNOWLEDGE
 except ImportError:
     from .knowledge import TEJESH_KNOWLEDGE
+
+try:
+    from contact_email import send_contact_email
+except ImportError:
+    from .contact_email import send_contact_email
 
 app = FastAPI()
 
@@ -41,6 +46,9 @@ class ChatRequest(BaseModel):
 
 rate_limit_lock = threading.Lock()
 client_last_request_time = {}
+
+contact_rate_limit_lock = threading.Lock()
+contact_client_last_request_time = {}
 
 def parse_rate_limit(env_value: str) -> float:
     try:
@@ -117,3 +125,59 @@ def chat_endpoint(request: Request, chat_req: ChatRequest):
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="The AI provider failed to generate a response or timed out. Please try again."
         )
+
+class ContactRequest(BaseModel):
+    firstName: str = Field(..., max_length=100)
+    lastName: str = Field(..., max_length=100)
+    email: EmailStr
+    confirmEmail: EmailStr
+    phone: str = Field(..., max_length=50)
+    message: str = Field(..., min_length=1, max_length=3000)
+    honeypot: Optional[str] = None
+
+@app.post("/api/contact")
+def contact_endpoint(request: Request, contact_req: ContactRequest):
+    # Validation: Confirm email matching (case-insensitive)
+    if contact_req.email.lower() != contact_req.confirmEmail.lower():
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Emails do not match.")
+
+    # Honeypot check: If filled, act like it succeeded but do nothing.
+    if contact_req.honeypot:
+        return {"status": "success", "message": "Enquiry submitted successfully."}
+
+    client_ip = request.client.host if request.client else "unknown"
+    now = time.monotonic()
+
+    rate_limit_seconds = parse_rate_limit(os.getenv("CONTACT_RATE_LIMIT_SECONDS", "60.0"))
+
+    with contact_rate_limit_lock:
+        # Cleanup expired items
+        expired_ips = [ip for ip, t in contact_client_last_request_time.items() if now - t >= rate_limit_seconds]
+        for ip in expired_ips:
+            del contact_client_last_request_time[ip]
+
+        if client_ip in contact_client_last_request_time:
+            if now - contact_client_last_request_time[client_ip] < rate_limit_seconds:
+                raise HTTPException(
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                    detail="Rate limit exceeded. Please wait before submitting another enquiry."
+                )
+
+        contact_client_last_request_time[client_ip] = now
+
+    # Send email
+    success = send_contact_email(
+        first_name=contact_req.firstName.strip(),
+        last_name=contact_req.lastName.strip(),
+        email=contact_req.email.strip(),
+        phone=contact_req.phone.strip(),
+        message=contact_req.message.strip()
+    )
+
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Failed to send the enquiry due to server configuration or delivery error."
+        )
+
+    return {"status": "success", "message": "Enquiry submitted successfully."}
