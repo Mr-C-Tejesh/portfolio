@@ -147,3 +147,15 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# Python
+__pycache__/
+*.py[cod]
+*.class
+backend/.venv/
+.DS_Store
+
+# Local secrets and OAuth tokens
+backend/scripts/secrets/
+client_secret*.json
+token.json

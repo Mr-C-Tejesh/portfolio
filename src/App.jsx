@@ -1,0 +1,66 @@
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import NavigationPill from './components/NavigationPill';
+import Home from './pages/Home';
+import Work from './pages/Work';
+import ProjectDetail from './pages/ProjectDetail';
+import Resume from './pages/Resume';
+import BioData from './pages/BioData';
+import AskTejesh from './pages/AskTejesh';
+import Contact from './pages/Contact';
+
+function AppContent() {
+  const location = useLocation();
+  const [isNavVisible, setIsNavVisible] = useState(false);
+  const [navTheme, setNavTheme] = useState('dark');
+
+  // When not on the home page, the navigation is always visible
+  useEffect(() => {
+    if (location.pathname !== '/') {
+      setIsNavVisible(true);
+      setNavTheme('light');
+    } else {
+      setNavTheme('dark');
+    }
+  }, [location]);
+
+  const handleHeroVisible = (isIntersecting) => {
+    // Only manage visibility via scroll on the homepage
+    if (location.pathname === '/') {
+      setIsNavVisible(!isIntersecting);
+    }
+  };
+
+  const handleThemeChange = (theme) => {
+    if (location.pathname === '/') {
+      setNavTheme(theme);
+    }
+  };
+
+  return (
+    <>
+      <NavigationPill isVisible={isNavVisible} theme={navTheme} />
+      <Routes>
+        <Route path="/" element={<Home onHeroVisible={handleHeroVisible} onThemeChange={handleThemeChange} />} />
+        <Route path="/work" element={<Work />} />
+        <Route path="/work/:slug" element={<ProjectDetail />} />
+        <Route path="/resume" element={<Resume />} />
+        <Route path="/bio-data" element={<BioData />} />
+        <Route path="/ask-tejesh" element={<AskTejesh />} />
+        <Route path="/contact" element={<Contact />} />
+        {/* Fallback route for unknown paths */}
+        <Route path="*" element={<ProjectDetail />} />
+      </Routes>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
+  );
+}
+
+export default App;
