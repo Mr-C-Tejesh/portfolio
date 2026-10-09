@@ -20,33 +20,59 @@ def test_chat_validation_error(monkeypatch):
     # Invalid role
     response = client.post("/api/chat", json={"messages": [{"role": "hacker", "content": "hi"}]})
     assert response.status_code == 422
-    
+
     # Message too long
     response = client.post("/api/chat", json={"messages": [{"role": "user", "content": "a" * 2000}]})
     assert response.status_code == 422
 
 def test_chat_success(monkeypatch):
     monkeypatch.setenv("GEMINI_API_KEY", "fake_key")
-    
+
     class FakeResponse:
         text = "Hello, I am Ask Tejesh."
-        
+
     class FakeModels:
         def generate_content(self, model, contents, config):
             return FakeResponse()
 
     class FakeClient:
-        def __init__(self, api_key):
+        def __init__(self, api_key, **kwargs):
             self.models = FakeModels()
 
     import google.genai as genai
     monkeypatch.setattr(genai, "Client", FakeClient)
-    
+
     # Reset rate limit state for testclient
     from backend.main import client_last_request_time
     if "testclient" in client_last_request_time:
         del client_last_request_time["testclient"]
-        
+
     response = client.post("/api/chat", json={"messages": [{"role": "user", "content": "hi"}]})
     assert response.status_code == 200
     assert response.json() == {"response": "Hello, I am Ask Tejesh."}
+
+def test_chat_exceeds_max_messages(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "fake_key")
+    messages = [{"role": "user", "content": f"msg {i}"} for i in range(9)]
+    response = client.post("/api/chat", json={"messages": messages})
+    assert response.status_code == 422
+
+def test_rate_limiting(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "fake_key")
+    monkeypatch.setenv("CHAT_RATE_LIMIT_SECONDS", "100.0")
+
+    from backend.main import client_last_request_time
+    if "testclient" in client_last_request_time:
+        del client_last_request_time["testclient"]
+
+    # First request
+    client.post("/api/chat", json={"messages": [{"role": "user", "content": "hi"}]})
+
+    # Second request should be rate limited
+    response2 = client.post("/api/chat", json={"messages": [{"role": "user", "content": "hi"}]})
+    assert response2.status_code == 429
+    assert "Rate limit exceeded" in response2.json()["detail"]
+
+    # Clean up
+    if "testclient" in client_last_request_time:
+        del client_last_request_time["testclient"]

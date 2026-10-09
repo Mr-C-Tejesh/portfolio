@@ -55,10 +55,11 @@ export default function AskTejesh() {
 
     try {
       const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+      const payloadMessages = newMessages.slice(-8);
       const response = await fetch(`${baseUrl}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newMessages })
+        body: JSON.stringify({ messages: payloadMessages })
       });
       
       if (!response.ok) {
