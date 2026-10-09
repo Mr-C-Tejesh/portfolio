@@ -118,7 +118,6 @@ def chat_endpoint(request: Request, chat_req: ChatRequest):
             config=types.GenerateContentConfig(
                 system_instruction=TEJESH_KNOWLEDGE,
                 max_output_tokens=500,
-                temperature=0.3,
             )
         )
         return {"response": response.text}

@@ -36,6 +36,11 @@ def test_chat_success(monkeypatch):
 
     class FakeModels:
         def generate_content(self, model, contents, config):
+            assert model == "gemini-2.5-flash"
+            # In google.genai, config is an object or dictionary. Let's check attributes.
+            assert getattr(config, 'system_instruction', None) is not None
+            # Ensure temperature is not provided
+            assert getattr(config, 'temperature', None) is None
             return FakeResponse()
 
     class FakeClient:
