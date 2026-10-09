@@ -244,8 +244,8 @@ img, picture, video, canvas, svg {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-canvas-primary);
   text-align: center;
+  background-color: transparent;
 }
 
 .hero-container {
@@ -254,6 +254,8 @@ img, picture, video, canvas, svg {
   align-items: center;
   justify-content: center;
   padding: var(--space-8) var(--layout-gutter);
+  position: relative;
+  z-index: 5;
 }
 
 .hero-description {

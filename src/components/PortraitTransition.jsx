@@ -54,22 +54,21 @@ export default function PortraitTransition({ targetRef }) {
         img.style.width = `${targetWidth}px`;
         img.style.transform = `translate3d(${targetX + window.scrollX}px, ${targetY + window.scrollY}px, 0)`;
         img.style.opacity = 1;
-        img.style.filter = `invert(0)`;
+        img.style.filter = 'none';
         img.style.zIndex = 10;
         return;
       }
       
       // Transitioning
-      const heroWidth = Math.min(viewportWidth * 0.8, 800);
-      const heroX = viewportWidth > 768 ? viewportWidth - heroWidth + 100 : (viewportWidth - heroWidth) / 2;
+      const heroWidth = Math.min(viewportWidth * 0.45, 600);
+      const heroX = viewportWidth > 768 ? viewportWidth - heroWidth + (heroWidth * 0.1) : (viewportWidth - heroWidth) / 2;
       const heroY = viewportHeight * 0.1;
       
       const currentWidth = heroWidth + (targetWidth - heroWidth) * easeT;
       const currentX = heroX + (targetX - heroX) * easeT;
       const currentY = heroY + (targetY - heroY) * easeT;
       
-      const opacity = 0.08 + (1 - 0.08) * Math.min(1, t * 1.5);
-      const invertAmount = 1 - easeT;
+      const opacity = 0.06 + (1 - 0.06) * Math.min(1, t * 1.5);
       
       img.style.position = 'fixed';
       img.style.left = '0px';
@@ -77,7 +76,7 @@ export default function PortraitTransition({ targetRef }) {
       img.style.width = `${currentWidth}px`;
       img.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
       img.style.opacity = opacity;
-      img.style.filter = `invert(${invertAmount})`;
+      img.style.filter = 'none';
       img.style.zIndex = easeT > 0.5 ? 10 : 0;
     };
 
@@ -121,7 +120,7 @@ export default function PortraitTransition({ targetRef }) {
       img.style.left = `${rect.left + window.scrollX}px`;
       img.style.top = `${rect.top + window.scrollY}px`;
       img.style.opacity = 1;
-      img.style.filter = 'invert(0)';
+      img.style.filter = 'none';
       img.style.transform = 'none';
       img.style.pointerEvents = 'none';
       img.style.zIndex = 10;
