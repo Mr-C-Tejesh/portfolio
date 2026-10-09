@@ -21,7 +21,19 @@ def send_contact_email(
     to_email = os.environ.get("CONTACT_TO_EMAIL")
     from_email = os.environ.get("CONTACT_FROM_EMAIL")
 
-    if not api_key or not to_email or not from_email:
+    missing_vars = []
+    if not api_key or api_key == "your_resend_api_key_here":
+        missing_vars.append("RESEND_API_KEY")
+    if not to_email or to_email == "tejeshc17@gmail.com" and api_key == "your_resend_api_key_here":
+        # Keep tejeshc17@gmail.com valid, but check if it's the example case
+        pass
+    if not to_email:
+        missing_vars.append("CONTACT_TO_EMAIL")
+    if not from_email:
+        missing_vars.append("CONTACT_FROM_EMAIL")
+
+    if missing_vars:
+        print(f"Diagnostic [Contact]: Email service missing configuration for: {', '.join(missing_vars)}")
         return False
 
     # Escape HTML to prevent injection
@@ -70,6 +82,15 @@ Message:
         })
         # If no exception was raised and an ID is returned, consider it successful
         return "id" in response
-    except Exception:
+    except Exception as e:
+        error_msg = f"Diagnostic [Contact]: Resend API email delivery failed. Type: {type(e).__name__}"
+        if hasattr(e, 'code'):
+            error_msg += f", Status/Code: {e.code}"
+        if hasattr(e, 'message'):
+            error_msg += f", Message: {e.message}"
+        else:
+            # Safely log the string representation
+            error_msg += f", Details: {str(e)}"
+        print(error_msg)
         # Catch any Resend API exception or network error gracefully
         return False

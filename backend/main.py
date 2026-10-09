@@ -85,6 +85,7 @@ def chat_endpoint(request: Request, chat_req: ChatRequest):
     model_name = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
     if not api_key or api_key == "your_gemini_api_key_here":
+        print("Diagnostic [Ask Tejesh]: GEMINI_API_KEY is missing or unconfigured.")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="AI Assistant is currently unavailable due to missing configuration."
@@ -94,7 +95,8 @@ def chat_endpoint(request: Request, chat_req: ChatRequest):
         from google import genai
         from google.genai import types
         client = genai.Client(api_key=api_key, http_options={'timeout': 15.0})
-    except Exception:
+    except Exception as e:
+        print(f"Diagnostic [Ask Tejesh]: Failed to initialize the AI provider. Type: {type(e).__name__}, Error: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to initialize the AI provider."
@@ -120,7 +122,16 @@ def chat_endpoint(request: Request, chat_req: ChatRequest):
             )
         )
         return {"response": response.text}
-    except Exception:
+    except Exception as e:
+        error_msg = f"Diagnostic [Ask Tejesh]: Gemini API generation failed. Type: {type(e).__name__}"
+        if hasattr(e, 'code'):
+            error_msg += f", Status/Code: {e.code}"
+        if hasattr(e, 'message'):
+            error_msg += f", Message: {e.message}"
+        else:
+            # Safely log the string representation of the error
+            error_msg += f", Details: {str(e)}"
+        print(error_msg)
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="The AI provider failed to generate a response or timed out. Please try again."
@@ -201,6 +212,7 @@ def contact_endpoint(request: Request, contact_req: ContactRequest):
     )
 
     if not success:
+        # Diagnostics for contact email failure are logged in send_contact_email
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Failed to send the enquiry due to server configuration or delivery error."

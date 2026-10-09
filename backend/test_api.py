@@ -10,11 +10,14 @@ def test_health_check():
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
 
-def test_chat_missing_config(monkeypatch):
+def test_chat_missing_config(monkeypatch, capsys):
     monkeypatch.setenv("GEMINI_API_KEY", "")
     response = client.post("/api/chat", json={"messages": [{"role": "user", "content": "hi"}]})
     assert response.status_code == 500
     assert "missing configuration" in response.json()["detail"]
+
+    captured = capsys.readouterr()
+    assert "Diagnostic [Ask Tejesh]: GEMINI_API_KEY is missing or unconfigured." in captured.out
 
 def test_chat_validation_error(monkeypatch):
     # Invalid role
@@ -51,6 +54,34 @@ def test_chat_success(monkeypatch):
     response = client.post("/api/chat", json={"messages": [{"role": "user", "content": "hi"}]})
     assert response.status_code == 200
     assert response.json() == {"response": "Hello, I am Ask Tejesh."}
+
+def test_chat_provider_error(monkeypatch, capsys):
+    monkeypatch.setenv("GEMINI_API_KEY", "fake_key_123")
+
+    class FakeModels:
+        def generate_content(self, model, contents, config):
+            raise Exception("Gemini Internal Server Error")
+
+    class FakeClient:
+        def __init__(self, api_key, **kwargs):
+            self.models = FakeModels()
+
+    import google.genai as genai
+    monkeypatch.setattr(genai, "Client", FakeClient)
+
+    # Reset rate limit state for testclient
+    from backend.main import client_last_request_time, rate_limit_lock
+    with rate_limit_lock:
+        if "testclient" in client_last_request_time:
+            del client_last_request_time["testclient"]
+
+    response = client.post("/api/chat", json={"messages": [{"role": "user", "content": "hi"}]})
+    assert response.status_code == 503
+
+    captured = capsys.readouterr()
+    assert "Diagnostic [Ask Tejesh]: Gemini API generation failed" in captured.out
+    assert "fake_key_123" not in captured.out
+    assert "Gemini Internal Server Error" in captured.out
 
 def test_chat_exceeds_max_messages(monkeypatch):
     monkeypatch.setenv("GEMINI_API_KEY", "fake_key")
@@ -366,25 +397,29 @@ def test_send_contact_email_success(monkeypatch):
     assert "<script>alert(1)</script>" in call_args["text"]
     assert "Hello!\nNew line here." in call_args["text"]
 
-def test_send_contact_email_missing_config(monkeypatch):
+def test_send_contact_email_missing_config(monkeypatch, capsys):
     monkeypatch.setenv("RESEND_API_KEY", "")
 
     from backend.contact_email import send_contact_email
     success = send_contact_email("John", "Doe", "test@example.com", "", "Hi")
     assert success is False
 
-def test_send_contact_email_provider_error(monkeypatch):
-    monkeypatch.setenv("RESEND_API_KEY", "test_key")
+    captured = capsys.readouterr()
+    assert "Diagnostic [Contact]: Email service missing configuration" in captured.out
+    assert "RESEND_API_KEY" in captured.out
+
+def test_send_contact_email_provider_error(monkeypatch, capsys):
+    monkeypatch.setenv("RESEND_API_KEY", "secret_resend_key_123")
     monkeypatch.setenv("CONTACT_TO_EMAIL", "to@example.com")
     monkeypatch.setenv("CONTACT_FROM_EMAIL", "from@example.com")
 
     class FakeEmails:
         @staticmethod
         def send(kwargs):
-            raise Exception("API error")
+            raise Exception("API error inside provider")
 
     class FakeResend:
-        api_key = "test_key"
+        api_key = "secret_resend_key_123"
         Emails = FakeEmails()
 
     monkeypatch.setattr("backend.contact_email.resend", FakeResend)
@@ -392,3 +427,8 @@ def test_send_contact_email_provider_error(monkeypatch):
     from backend.contact_email import send_contact_email
     success = send_contact_email("John", "Doe", "test@example.com", "", "Hi")
     assert success is False
+
+    captured = capsys.readouterr()
+    assert "Diagnostic [Contact]: Resend API email delivery failed" in captured.out
+    assert "secret_resend_key_123" not in captured.out
+    assert "API error inside provider" in captured.out
