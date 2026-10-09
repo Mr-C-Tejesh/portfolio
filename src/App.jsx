@@ -6,6 +6,7 @@ import Work from './pages/Work';
 import ProjectDetail from './pages/ProjectDetail';
 import Resume from './pages/Resume';
 import BioData from './pages/BioData';
+import AskTejesh from './pages/AskTejesh';
 
 function AppContent() {
   const location = useLocation();
@@ -44,6 +45,7 @@ function AppContent() {
         <Route path="/work/:slug" element={<ProjectDetail />} />
         <Route path="/resume" element={<Resume />} />
         <Route path="/bio-data" element={<BioData />} />
+        <Route path="/ask-tejesh" element={<AskTejesh />} />
         {/* Fallback route for unknown paths */}
         <Route path="*" element={<ProjectDetail />} />
       </Routes>
