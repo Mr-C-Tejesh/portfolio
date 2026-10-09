@@ -96,19 +96,31 @@ def test_rate_limiting(monkeypatch):
         if "testclient" in client_last_request_time:
             del client_last_request_time["testclient"]
 
-@pytest.mark.parametrize("value,expected", [
-    ("not-a-number", 5.0),
-    ("", 5.0),
-    ("0", 5.0),
-    ("-1", 5.0),
-    ("nan", 5.0),
-    ("inf", 5.0),
-    ("-inf", 5.0),
-    ("10.5", 10.5),
+@pytest.mark.parametrize("value,fallback,expected", [
+    ("not-a-number", None, 5.0),
+    ("", None, 5.0),
+    ("0", None, 5.0),
+    ("-1", None, 5.0),
+    ("nan", None, 5.0),
+    ("inf", None, 5.0),
+    ("-inf", None, 5.0),
+    ("10.5", None, 10.5),
+    # Test with custom fallback
+    ("not-a-number", 60.0, 60.0),
+    ("", 60.0, 60.0),
+    ("0", 60.0, 60.0),
+    ("-1", 60.0, 60.0),
+    ("nan", 60.0, 60.0),
+    ("inf", 60.0, 60.0),
+    ("-inf", 60.0, 60.0),
+    ("10.5", 60.0, 10.5),
 ])
-def test_parse_rate_limit(value, expected):
+def test_parse_rate_limit(value, fallback, expected):
     from backend.main import parse_rate_limit
-    assert parse_rate_limit(value) == expected
+    if fallback is None:
+        assert parse_rate_limit(value) == expected
+    else:
+        assert parse_rate_limit(value, fallback=fallback) == expected
 
 # --- CONTACT ENQUIRY TESTS ---
 
@@ -252,3 +264,131 @@ def test_contact_honeypot(monkeypatch):
     })
     assert response.status_code == 200
     assert response.json()["status"] == "success"
+
+def test_contact_validation_names(monkeypatch):
+    # Empty name
+    res1 = client.post("/api/contact", json={
+        "firstName": "   ",
+        "lastName": "Doe",
+        "email": "a@example.com",
+        "confirmEmail": "a@example.com",
+        "phone": "",
+        "message": "Valid message"
+    })
+    assert res1.status_code == 422
+
+    # Control character in name
+    res2 = client.post("/api/contact", json={
+        "firstName": "John\n",
+        "lastName": "Doe",
+        "email": "a@example.com",
+        "confirmEmail": "a@example.com",
+        "phone": "",
+        "message": "Valid message"
+    })
+    assert res2.status_code == 422
+
+    # Valid name with symbols
+    monkeypatch.setenv("CONTACT_RATE_LIMIT_SECONDS", "0.001")
+    monkeypatch.setattr("backend.main.send_contact_email", lambda *a, **k: True)
+    from backend.main import contact_client_last_request_time, contact_rate_limit_lock
+    with contact_rate_limit_lock:
+        if "testclient" in contact_client_last_request_time:
+            del contact_client_last_request_time["testclient"]
+
+    res3 = client.post("/api/contact", json={
+        "firstName": "Jean-Luc",
+        "lastName": "O'Connor",
+        "email": "a@example.com",
+        "confirmEmail": "a@example.com",
+        "phone": "",
+        "message": "Valid message"
+    })
+    assert res3.status_code == 200
+
+def test_contact_validation_message(monkeypatch):
+    # Empty message
+    res = client.post("/api/contact", json={
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "a@example.com",
+        "confirmEmail": "a@example.com",
+        "phone": "",
+        "message": "   \n  "
+    })
+    assert res.status_code == 422
+
+# --- CONTACT EMAIL UNIT TESTS ---
+
+def test_send_contact_email_success(monkeypatch):
+    monkeypatch.setenv("RESEND_API_KEY", "test_key")
+    monkeypatch.setenv("CONTACT_TO_EMAIL", "to@example.com")
+    monkeypatch.setenv("CONTACT_FROM_EMAIL", "from@example.com")
+
+    call_args = {}
+
+    class FakeEmails:
+        @staticmethod
+        def send(kwargs):
+            call_args.update(kwargs)
+            return {"id": "email_123"}
+
+    class FakeResend:
+        api_key = "test_key"
+        Emails = FakeEmails()
+
+    import sys
+    # Monkeypatch the resend module directly
+    monkeypatch.setattr("backend.contact_email.resend", FakeResend)
+
+    from backend.contact_email import send_contact_email
+
+    success = send_contact_email(
+        first_name="<script>alert(1)</script>",
+        last_name="Doe",
+        email="visitor@example.com",
+        phone="555-1234",
+        message="Hello!\nNew line here."
+    )
+
+    assert success is True
+    assert call_args["to"] == "to@example.com"
+    assert call_args["from"] == "from@example.com"
+    assert call_args["reply_to"] == "visitor@example.com"
+    assert call_args["subject"] == "New portfolio enquiry — <script>alert(1)</script> Doe"
+
+    # Check escaping in HTML
+    assert "&lt;script&gt;alert(1)&lt;/script&gt;" in call_args["html"]
+    # Check newline replacement
+    assert "Hello!<br>New line here." in call_args["html"]
+
+    # Text content should have un-escaped but raw string
+    assert "<script>alert(1)</script>" in call_args["text"]
+    assert "Hello!\nNew line here." in call_args["text"]
+
+def test_send_contact_email_missing_config(monkeypatch):
+    monkeypatch.setenv("RESEND_API_KEY", "")
+
+    from backend.contact_email import send_contact_email
+    success = send_contact_email("John", "Doe", "test@example.com", "", "Hi")
+    assert success is False
+
+def test_send_contact_email_provider_error(monkeypatch):
+    monkeypatch.setenv("RESEND_API_KEY", "test_key")
+    monkeypatch.setenv("CONTACT_TO_EMAIL", "to@example.com")
+    monkeypatch.setenv("CONTACT_FROM_EMAIL", "from@example.com")
+
+    class FakeEmails:
+        @staticmethod
+        def send(kwargs):
+            raise Exception("API error")
+
+    class FakeResend:
+        api_key = "test_key"
+        Emails = FakeEmails()
+
+    monkeypatch.setattr("backend.contact_email.resend", FakeResend)
+
+    from backend.contact_email import send_contact_email
+    success = send_contact_email("John", "Doe", "test@example.com", "", "Hi")
+    assert success is False

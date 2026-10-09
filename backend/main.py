@@ -4,7 +4,7 @@ import math
 import threading
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, field_validator, ValidationInfo
 from typing import List, Literal, Optional
 from dotenv import load_dotenv
 
@@ -50,14 +50,14 @@ client_last_request_time = {}
 contact_rate_limit_lock = threading.Lock()
 contact_client_last_request_time = {}
 
-def parse_rate_limit(env_value: str) -> float:
+def parse_rate_limit(env_value: str, fallback: float = 5.0) -> float:
     try:
         val = float(env_value)
         if not math.isfinite(val) or val <= 0:
-            return 5.0
+            return fallback
         return val
     except (ValueError, TypeError):
-        return 5.0
+        return fallback
 
 @app.post("/api/chat")
 def chat_endpoint(request: Request, chat_req: ChatRequest):
@@ -131,9 +131,35 @@ class ContactRequest(BaseModel):
     lastName: str = Field(..., max_length=100)
     email: EmailStr
     confirmEmail: EmailStr
-    phone: str = Field(..., max_length=50)
+    phone: Optional[str] = Field(default="", max_length=50)
     message: str = Field(..., min_length=1, max_length=3000)
     honeypot: Optional[str] = None
+
+    @field_validator("firstName", "lastName")
+    @classmethod
+    def validate_name(cls, v: str) -> str:
+        # Reject control characters (CR, LF, etc.) before stripping
+        if any(ord(c) < 32 for c in v):
+            raise ValueError("Name contains invalid characters.")
+        v = v.strip()
+        if not v:
+            raise ValueError("Name cannot be empty or just whitespace.")
+        return v
+
+    @field_validator("message")
+    @classmethod
+    def validate_message(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("Message cannot be empty or just whitespace.")
+        return v
+
+    @field_validator("phone")
+    @classmethod
+    def validate_phone(cls, v: Optional[str]) -> str:
+        if v is None:
+            return ""
+        return v.strip()
 
 @app.post("/api/contact")
 def contact_endpoint(request: Request, contact_req: ContactRequest):
@@ -148,7 +174,7 @@ def contact_endpoint(request: Request, contact_req: ContactRequest):
     client_ip = request.client.host if request.client else "unknown"
     now = time.monotonic()
 
-    rate_limit_seconds = parse_rate_limit(os.getenv("CONTACT_RATE_LIMIT_SECONDS", "60.0"))
+    rate_limit_seconds = parse_rate_limit(os.getenv("CONTACT_RATE_LIMIT_SECONDS", "60.0"), fallback=60.0)
 
     with contact_rate_limit_lock:
         # Cleanup expired items
