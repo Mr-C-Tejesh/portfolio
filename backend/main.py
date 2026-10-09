@@ -94,7 +94,7 @@ def chat_endpoint(request: Request, chat_req: ChatRequest):
     try:
         from google import genai
         from google.genai import types
-        client = genai.Client(api_key=api_key, http_options={'timeout': 15.0})
+        client = genai.Client(api_key=api_key, http_options={'timeout': 30000})
     except Exception as e:
         print(f"Diagnostic [Ask Tejesh]: Failed to initialize the AI provider. Type: {type(e).__name__}, Error: {str(e)}")
         raise HTTPException(

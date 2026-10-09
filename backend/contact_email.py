@@ -86,11 +86,17 @@ Message:
         error_msg = f"Diagnostic [Contact]: Resend API email delivery failed. Type: {type(e).__name__}"
         if hasattr(e, 'code'):
             error_msg += f", Status/Code: {e.code}"
-        if hasattr(e, 'message'):
-            error_msg += f", Message: {e.message}"
-        else:
-            # Safely log the string representation
-            error_msg += f", Details: {str(e)}"
+
+        raw_msg = getattr(e, 'message', str(e))
+        short_msg = raw_msg.split('\n')[0][:100]
+
+        # Redact known visitor PII from the error summary
+        if email: short_msg = short_msg.replace(email, "[REDACTED_EMAIL]")
+        if phone: short_msg = short_msg.replace(phone, "[REDACTED_PHONE]")
+        if first_name: short_msg = short_msg.replace(first_name, "[REDACTED_NAME]")
+        if last_name: short_msg = short_msg.replace(last_name, "[REDACTED_NAME]")
+
+        error_msg += f", Summary: {short_msg}"
         print(error_msg)
         # Catch any Resend API exception or network error gracefully
         return False
