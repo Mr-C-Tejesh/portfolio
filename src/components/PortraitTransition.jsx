@@ -38,7 +38,7 @@ export default function PortraitTransition({ targetRef }) {
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
       
-      const t = Math.min(1, Math.max(0, scrollY / viewportHeight));
+      const t = Math.min(1, Math.max(0, scrollY / (viewportHeight * 0.62)));
       const easeT = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; // easeInOutQuad
       
       const targetRect = target.getBoundingClientRect();
@@ -60,15 +60,17 @@ export default function PortraitTransition({ targetRef }) {
       }
       
       // Transitioning
-      const heroWidth = Math.min(viewportWidth * 0.45, 600);
-      const heroX = viewportWidth > 768 ? viewportWidth - heroWidth + (heroWidth * 0.1) : (viewportWidth - heroWidth) / 2;
+      const containerWidth = Math.min(viewportWidth - 40, 1280); // matches --layout-max-width 1280
+      const containerLeft = (viewportWidth - containerWidth) / 2;
+      const heroWidth = Math.min(containerWidth * 0.45, 550);
+      const heroX = viewportWidth > 768 ? containerLeft + containerWidth - heroWidth : (viewportWidth - heroWidth) / 2;
       const heroY = viewportHeight * 0.1;
       
       const currentWidth = heroWidth + (targetWidth - heroWidth) * easeT;
       const currentX = heroX + (targetX - heroX) * easeT;
       const currentY = heroY + (targetY - heroY) * easeT;
       
-      const opacity = 0.06 + (1 - 0.06) * Math.min(1, t * 1.5);
+      const opacity = 0.08 + (1 - 0.08) * Math.min(1, t * 1.5);
       
       img.style.position = 'fixed';
       img.style.left = '0px';
