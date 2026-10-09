@@ -1,5 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 
+// Resolve the backend URL once at module load time.
+// In production builds VITE_API_BASE_URL must be set at build time by the hosting provider.
+// Falling back to localhost in production would silently hit the visitor's own machine.
+const API_BASE_URL = (() => {
+  const configured = import.meta.env.VITE_API_BASE_URL;
+  if (configured) return configured.replace(/\/$/, '');
+  if (import.meta.env.MODE !== 'production') return 'http://127.0.0.1:8000';
+  return null; // signals missing production config
+})();
+
 const SUGGESTED_QUESTIONS = [
   "What is Tejesh currently working on?",
   "Tell me about his AI projects.",
@@ -54,14 +64,19 @@ export default function AskTejesh() {
     setIsLoading(true);
 
     try {
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+      if (!API_BASE_URL) {
+        throw new Error(
+          'The AI assistant is not configured for this environment. ' +
+          'Set VITE_API_BASE_URL and redeploy the site.'
+        );
+      }
       const payloadMessages = newMessages.slice(-8);
-      const response = await fetch(`${baseUrl}/api/chat`, {
+      const response = await fetch(`${API_BASE_URL}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: payloadMessages })
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.detail || `Server error: ${response.status}`);
@@ -70,8 +85,15 @@ export default function AskTejesh() {
       const data = await response.json();
       setMessages([...newMessages, { role: 'assistant', content: data.response }]);
     } catch (err) {
-      setError(err.message || "Failed to connect to the assistant.");
-      // The user message remains in the list, so they can retry.
+      // Distinguish network errors from server errors:
+      // TypeError ("Failed to fetch") → CORS/network; anything else → either config or server.
+      const isNetworkError = err instanceof TypeError;
+      setError(
+        isNetworkError
+          ? 'Could not reach the assistant server. Check your connection or try again later.'
+          : (err.message || 'Failed to connect to the assistant.')
+      );
+      // The user message remains in the list so the retry button works without duplicating it.
     } finally {
       setIsLoading(false);
       if (window.innerWidth > 768) {

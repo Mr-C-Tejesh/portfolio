@@ -372,8 +372,9 @@ img, picture, video, canvas, svg {
   transition: opacity 0.2s ease 0s;
 }
 
-.navigation-container.is-visible .navigation-pill,
-.navigation-container.is-visible .navigation-menu {
+/* The pill itself is always interactive when the container is visible.
+   The menu's pointer-events are controlled separately by .is-open below. */
+.navigation-container.is-visible .navigation-pill {
   pointer-events: auto;
 }
 
@@ -493,13 +494,17 @@ img, picture, video, canvas, svg {
   opacity: 0;
   transform: translateY(-10px);
   pointer-events: none;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  /* visibility:hidden prevents hidden links from receiving keyboard focus */
+  visibility: hidden;
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s linear 0.3s;
 }
 
 .navigation-menu.is-open {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
+  visibility: visible;
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s linear 0s;
 }
 
 .navigation-menu ul {
