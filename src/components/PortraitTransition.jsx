@@ -70,7 +70,7 @@ export default function PortraitTransition({ targetRef }) {
       const currentX = heroX + (targetX - heroX) * easeT;
       const currentY = heroY + (targetY - heroY) * easeT;
       
-      const opacity = 0.20 + (1 - 0.20) * Math.min(1, t * 1.5);
+      const opacity = 0.24 + (1 - 0.24) * Math.min(1, t * 1.5);
       
       img.style.position = 'fixed';
       img.style.left = '0px';
