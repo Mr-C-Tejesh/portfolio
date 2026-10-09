@@ -14,10 +14,10 @@ function App() {
     if (!hero) return;
 
     const observer = new IntersectionObserver(([entry]) => {
-      setIsNavVisible(!entry.isIntersecting);
+      setIsNavVisible(entry.intersectionRatio <= 0.10);
     }, {
       root: null,
-      threshold: 0,
+      threshold: [0.10],
       rootMargin: '0px'
     });
 
